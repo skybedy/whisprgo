@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
+
+	"whisprgo/internal/config"
 )
 
 const openAIResponsesURL = "https://api.openai.com/v1/responses"
@@ -19,9 +20,9 @@ type OpenAICleaner struct {
 }
 
 func NewOpenAICleanerFromEnv(client *http.Client) (*OpenAICleaner, error) {
-	apiKey := os.Getenv("OPENAI_API_KEY")
+	apiKey := config.ResolveSecret("OPENAI_API_KEY")
 	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is not set")
+		return nil, errors.New("OPENAI_API_KEY is not set (env or ~/.config/whisprgo/.env)")
 	}
 	if client == nil {
 		client = &http.Client{}
