@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -64,4 +65,24 @@ func Load() (Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func Exists() bool {
+	_, err := os.Stat(Path())
+	return err == nil
+}
+
+func Save(cfg Config) error {
+	raw, err := yaml.Marshal(&cfg)
+	if err != nil {
+		return err
+	}
+	path := Path()
+	dir := filepath.Dir(path)
+	if dir != "." && dir != "" {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+	}
+	return os.WriteFile(path, raw, 0o644)
 }

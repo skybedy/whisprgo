@@ -43,3 +43,10 @@
 - [x] add CHANGELOG and release checklist
 - [x] add CLI smoke test script
 - [x] add GitHub Actions CI and release workflows
+
+## Config/Auth CLI management
+
+- [x] add `config init/show/get/set`
+- [x] validate supported config keys and value types
+- [x] add `auth status/set-openai-key/clear-openai-key`
+- [x] store OpenAI key in `~/.config/whisprgo/.env` with secure permissions

@@ -94,8 +94,30 @@ Priorita nacteni:
 - `whisprgo cancel`
 - `whisprgo transcribe /path/to/audio.wav`
 - `whisprgo config path`
+- `whisprgo config init [--force]`
+- `whisprgo config show`
+- `whisprgo config get <key>`
+- `whisprgo config set <key> <value>`
+- `whisprgo auth status`
+- `whisprgo auth set-openai-key`
+- `whisprgo auth clear-openai-key`
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
+
+Podporovane config keys pro `config get/set`:
+
+- `provider.transcription`
+- `provider.transcription_model`
+- `cleanup.enabled`
+- `cleanup.provider`
+- `cleanup.model`
+- `cleanup.prompt`
+- `output.clipboard`
+- `output.paste`
+- `output.paste_delay_ms`
+- `audio.input`
+- `audio.format`
+- `audio.recorder`
 
 Tip pro spolehlive paste pres hotkey:
 

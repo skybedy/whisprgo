@@ -14,3 +14,5 @@
 - Recording will be delegated to external tools such as ffmpeg.
 - Transcription and cleanup are separate concepts.
 - Models are configurable through YAML config.
+- Common settings are manageable through CLI config commands (`config init/show/get/set`).
+- API keys are manageable through CLI auth commands and are stored outside `config.yaml`.

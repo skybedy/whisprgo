@@ -99,3 +99,8 @@ Potom ukaž:
 git status --short
 
 A navrhni commit message.
+
+## WhisprGo specifika
+
+- Bezne nastaveni patri do `config.yaml` a maji jit menit i pres `whisprgo config ...`.
+- API klice nepatri do `config.yaml`; pouzivej `whisprgo auth ...` a `.env` soubory.

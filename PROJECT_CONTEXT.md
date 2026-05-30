@@ -11,3 +11,5 @@
 - API klice nepatri do configu.
 - Primarni prvni workflow je `whisprgo toggle`.
 - Projekt ma pripraveny zaklad pro release: `VERSION`, prikaz `whisprgo version`, smoke test a GitHub Actions CI/release workflow.
+- Konfigurace je spravovatelna i pres CLI (`config init/show/get/set`), bez nutnosti rucni editace YAML.
+- API key je spravovatelny pres CLI (`auth status/set-openai-key/clear-openai-key`) a uklada se do `~/.config/whisprgo/.env`.

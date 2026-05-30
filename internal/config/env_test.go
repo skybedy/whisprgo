@@ -76,3 +76,43 @@ func TestResolveSecretPrefersLocalDotEnvOverHomeDotEnv(t *testing.T) {
 		t.Fatalf("expected local .env priority, got %q", got)
 	}
 }
+
+func TestUpsertAndRemoveKeyInEnvFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), ".env")
+
+	if err := UpsertKeyInEnvFile(path, "OPENAI_API_KEY", "first"); err != nil {
+		t.Fatalf("UpsertKeyInEnvFile create failed: %v", err)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read .env failed: %v", err)
+	}
+	if string(raw) != "OPENAI_API_KEY=first\n" {
+		t.Fatalf("unexpected content after create: %q", string(raw))
+	}
+
+	if err := UpsertKeyInEnvFile(path, "OPENAI_API_KEY", "second"); err != nil {
+		t.Fatalf("UpsertKeyInEnvFile update failed: %v", err)
+	}
+	raw, err = os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read .env failed: %v", err)
+	}
+	if string(raw) != "OPENAI_API_KEY=second\n" {
+		t.Fatalf("unexpected content after update: %q", string(raw))
+	}
+
+	if err := UpsertKeyInEnvFile(path, "OTHER", "x"); err != nil {
+		t.Fatalf("UpsertKeyInEnvFile append failed: %v", err)
+	}
+	if err := RemoveKeyFromEnvFile(path, "OPENAI_API_KEY"); err != nil {
+		t.Fatalf("RemoveKeyFromEnvFile failed: %v", err)
+	}
+	raw, err = os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read .env failed: %v", err)
+	}
+	if string(raw) != "OTHER=x\n" {
+		t.Fatalf("unexpected content after remove: %q", string(raw))
+	}
+}

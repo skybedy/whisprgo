@@ -1,24 +1,21 @@
 provider:
-  transcription: openai
-  transcription_model: gpt-4o-mini-transcribe
-
+    transcription: openai
+    transcription_model: whisper-1
 cleanup:
-  enabled: false
-  provider: openai
-  model: gpt-4o-mini
-  prompt: |
-    Uprav tento diktovany text do prirozene cestiny.
-    Zachovej vyznam, nic nepridavej a nic duleziteho nemaz.
-
+    enabled: false
+    provider: openai
+    model: gpt-4o-mini
+    prompt: |
+        Uprav tento diktovany text do prirozene cestiny.
+        Zachovej vyznam, nic nepridavej a nic duleziteho nemaz.
 output:
-  clipboard: true
-  paste: true
-  paste_delay_ms: 250
-  paste_blocklist:
-    - config.yaml
-    - .env
-
+    clipboard: true
+    paste: true
+    paste_delay_ms: 250
+    paste_blocklist:
+        - config.yaml
+        - .env
 audio:
-  input: default
-  format: wav
-  recorder: ffmpeg
+    input: default
+    format: wav
+    recorder: ffmpeg
