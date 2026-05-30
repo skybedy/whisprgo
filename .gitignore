@@ -1,0 +1,29 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+/whisprgo
+
+# Build output
+build/
+dist/
+
+# Go coverage and test artifacts
+coverage.out
+*.coverprofile
+
+# Environment files
+.env
+.env.*
+
+# Temporary/editor files
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local state
+/tmp/whisprgo/

@@ -1,0 +1,47 @@
+package app
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/spf13/cobra"
+
+	"whisprgo/internal/state"
+)
+
+func (a *App) newToggleCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "toggle",
+		Short: "Start or stop fake recording",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !state.Exists() {
+				s := state.State{
+					Recording: true,
+					PID:       0,
+					AudioPath: state.FakeAudioPath(),
+					StartedAt: time.Now(),
+				}
+
+				if err := state.Save(s); err != nil {
+					return fmt.Errorf("failed to save state: %w", err)
+				}
+
+				fmt.Fprintln(cmd.OutOrStdout(), "recording started")
+				return nil
+			}
+
+			s, err := state.Load()
+			if err != nil {
+				return fmt.Errorf("failed to load state: %w", err)
+			}
+
+			if err := state.Delete(); err != nil {
+				return fmt.Errorf("failed to delete state: %w", err)
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), "recording stopped")
+			fmt.Fprintf(cmd.OutOrStdout(), "audio: %s\n", s.AudioPath)
+			return nil
+		},
+	}
+}

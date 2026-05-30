@@ -1,0 +1,20 @@
+provider:
+  transcription: openai
+  transcription_model: gpt-4o-mini-transcribe
+
+cleanup:
+  enabled: false
+  provider: openai
+  model: gpt-4o-mini
+  prompt: |
+    Uprav tento diktovany text do prirozene cestiny.
+    Zachovej vyznam, nic nepridavej a nic duleziteho nemaz.
+
+output:
+  clipboard: true
+  paste: false
+
+audio:
+  input: default
+  format: wav
+  recorder: ffmpeg
