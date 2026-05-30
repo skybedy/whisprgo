@@ -23,6 +23,11 @@ func (a *App) newStatusCommand() *cobra.Command {
 				return fmt.Errorf("failed to load state: %w", err)
 			}
 
+			if !a.recorder.IsRunning(s.PID) {
+				fmt.Fprintln(cmd.OutOrStdout(), "not recording")
+				return nil
+			}
+
 			fmt.Fprintln(cmd.OutOrStdout(), "recording")
 			fmt.Fprintf(cmd.OutOrStdout(), "pid: %d\n", s.PID)
 			fmt.Fprintf(cmd.OutOrStdout(), "audio: %s\n", s.AudioPath)

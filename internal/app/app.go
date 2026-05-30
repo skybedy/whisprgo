@@ -6,11 +6,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"whisprgo/internal/config"
+	"whisprgo/internal/recorder"
 )
 
 type App struct {
-	root *cobra.Command
-	cfg  config.Config
+	root     *cobra.Command
+	cfg      config.Config
+	recorder recorder.Recorder
 }
 
 func New() (*App, error) {
@@ -19,7 +21,10 @@ func New() (*App, error) {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
-	a := &App{cfg: cfg}
+	a := &App{
+		cfg:      cfg,
+		recorder: recorder.NewFFmpegRecorder(),
+	}
 	a.root = a.newRootCommand()
 	a.registerCommands()
 	return a, nil

@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"time"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -12,17 +12,18 @@ import (
 func (a *App) newToggleCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "toggle",
-		Short: "Start or stop fake recording",
+		Short: "Start or stop recording",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !state.Exists() {
-				s := state.State{
-					Recording: true,
-					PID:       0,
-					AudioPath: state.FakeAudioPath(),
-					StartedAt: time.Now(),
+				session, err := a.recorder.Start()
+				if err != nil {
+					return err
 				}
 
+				s := state.State{Recording: true, PID: session.PID, AudioPath: session.AudioPath, StartedAt: session.StartedAt}
+
 				if err := state.Save(s); err != nil {
+					_ = a.recorder.Stop(session.PID)
 					return fmt.Errorf("failed to save state: %w", err)
 				}
 
@@ -32,7 +33,16 @@ func (a *App) newToggleCommand() *cobra.Command {
 
 			s, err := state.Load()
 			if err != nil {
+				if os.IsNotExist(err) {
+					return nil
+				}
 				return fmt.Errorf("failed to load state: %w", err)
+			}
+
+			if a.recorder.IsRunning(s.PID) {
+				if err := a.recorder.Stop(s.PID); err != nil {
+					return err
+				}
 			}
 
 			if err := state.Delete(); err != nil {
