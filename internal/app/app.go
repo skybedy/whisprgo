@@ -8,6 +8,7 @@ import (
 
 	"whisprgo/internal/config"
 	"whisprgo/internal/logx"
+	"whisprgo/internal/notifier"
 	"whisprgo/internal/recorder"
 )
 
@@ -15,6 +16,7 @@ type App struct {
 	root     *cobra.Command
 	cfg      config.Config
 	recorder recorder.Recorder
+	notifier *notifier.Notifier
 	logger   *logx.Logger
 	verbose  bool
 }
@@ -28,6 +30,7 @@ func New() (*App, error) {
 	a := &App{
 		cfg:      cfg,
 		recorder: recorder.NewFFmpegRecorder(),
+		notifier: notifier.New(),
 	}
 	a.root = a.newRootCommand()
 	a.registerCommands()
@@ -94,5 +97,14 @@ func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
 	}
 	if a.verbose && stderr != nil {
 		fmt.Fprintf(stderr, "error: %s\n", msg)
+	}
+}
+
+func (a *App) notify(summary string, body string, icon string, stderr io.Writer) {
+	if a.notifier == nil {
+		return
+	}
+	if err := a.notifier.Notify(summary, body, icon); err != nil {
+		a.logErrorf(stderr, "notification failed: %v", err)
 	}
 }

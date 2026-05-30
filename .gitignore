@@ -27,3 +27,4 @@ coverage.out
 
 # Local state
 /tmp/whisprgo/
+whisprgo.log

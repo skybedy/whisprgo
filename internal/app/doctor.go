@@ -41,6 +41,9 @@ func (a *App) newDoctorCommand() *cobra.Command {
 			_, xdotoolErr := exec.LookPath("xdotool")
 			printCheck("xdotool", xdotoolErr == nil, "optional paste")
 
+			_, notifyErr := exec.LookPath("notify-send")
+			printCheck("notify-send", notifyErr == nil, "desktop recording notifications")
+
 			apiKey := config.ResolveSecret("OPENAI_API_KEY")
 			printCheck("OPENAI_API_KEY", apiKey != "", "env or .env")
 

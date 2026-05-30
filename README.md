@@ -48,7 +48,7 @@ ls -la dist/
 
 - Linux (cilene Linux Mint Cinnamon / Ubuntu)
 - Go 1.22+
-- Pozdeji: `ffmpeg`, `xclip`/`xsel`, volitelne `xdotool`
+- Pozdeji: `ffmpeg`, `xclip`/`xsel`, volitelne `xdotool`, `notify-send`
 
 ## Configuration
 
@@ -142,6 +142,11 @@ Aplikace zapisuje provozni log do:
 Pokud nelze zapisovat do aktualni slozky, pouzije fallback:
 
 `~/.local/state/whisprgo/whisprgo.log`
+
+## Recording indicator
+
+Pri `toggle` start/stop aplikace posila desktop notifikaci pres `notify-send`, aby bylo jasne, zda nahravani bezi nebo uz bylo zastaveno.
+Pri startu je notifikace sticky (zustane viditelna), pri stopu se nahradi na "Nahravani zastaveno.".
 
 ## Project status
 
