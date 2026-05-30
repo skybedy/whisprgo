@@ -2,10 +2,12 @@ package app
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 
 	"whisprgo/internal/config"
+	"whisprgo/internal/logx"
 	"whisprgo/internal/recorder"
 )
 
@@ -13,6 +15,8 @@ type App struct {
 	root     *cobra.Command
 	cfg      config.Config
 	recorder recorder.Recorder
+	logger   *logx.Logger
+	verbose  bool
 }
 
 func New() (*App, error) {
@@ -35,10 +39,17 @@ func (a *App) Execute() error {
 }
 
 func (a *App) newRootCommand() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "whisprgo",
 		Short: "Minimal Linux CLI dictation tool",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			a.ensureLogger(cmd.ErrOrStderr())
+		},
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
+	cmd.PersistentFlags().BoolVar(&a.verbose, "verbose", false, "print diagnostic logs to stderr")
+	return cmd
 }
 
 func (a *App) registerCommands() {
@@ -47,4 +58,39 @@ func (a *App) registerCommands() {
 	a.root.AddCommand(a.newCancelCommand())
 	a.root.AddCommand(a.newTranscribeCommand())
 	a.root.AddCommand(a.newConfigCommand())
+}
+
+func (a *App) ensureLogger(stderr io.Writer) {
+	if a.logger != nil {
+		return
+	}
+
+	logger, err := logx.New()
+	if err != nil {
+		if a.verbose {
+			fmt.Fprintf(stderr, "warning: failed to initialize logger: %v\n", err)
+		}
+		return
+	}
+	a.logger = logger
+}
+
+func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
+	msg := fmt.Sprintf(format, args...)
+	if a.logger != nil {
+		a.logger.Info(msg)
+	}
+	if a.verbose {
+		fmt.Fprintf(stderr, "info: %s\n", msg)
+	}
+}
+
+func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
+	msg := fmt.Sprintf(format, args...)
+	if a.logger != nil {
+		a.logger.Error(msg)
+	}
+	if a.verbose {
+		fmt.Fprintf(stderr, "error: %s\n", msg)
+	}
 }

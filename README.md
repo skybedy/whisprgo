@@ -20,7 +20,21 @@ Nahraje zvuk z mikrofonu, posle ho na speech-to-text API a vysledek vlozi do sch
 ## Installation
 
 ```bash
-go build -o whisprgo ./cmd/whisprgo
+make build
+sudo make install
+```
+
+Update lokalni binarky:
+
+```bash
+make build
+cp ./whisprgo ~/.local/bin/whisprgo
+```
+
+Odinstalace z `/usr/local/bin`:
+
+```bash
+sudo make uninstall
 ```
 
 ## Requirements
@@ -52,6 +66,15 @@ Pouzij environment variable:
 - `whisprgo cancel`
 - `whisprgo transcribe /path/to/audio.wav`
 - `whisprgo config path`
+- Global flag: `--verbose` (diagnosticke logy na stderr)
+
+## Development checks
+
+```bash
+make fmt
+make test
+go build ./cmd/whisprgo
+```
 
 ## Linux Mint keyboard shortcut
 
@@ -65,6 +88,12 @@ Hotkey se nastavi externe v Linux Mint/Cinnamon tak, aby volal:
 Stav nahravani je ulozen v:
 
 `/tmp/whisprgo/state.json`
+
+## Log file
+
+Aplikace zapisuje provozni log do:
+
+`~/.local/state/whisprgo/whisprgo.log`
 
 ## Project status
 

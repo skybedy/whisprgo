@@ -14,12 +14,14 @@ func (a *App) newStatusCommand() *cobra.Command {
 		Use:   "status",
 		Short: "Show recording status",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			a.logInfof(cmd.ErrOrStderr(), "status invoked")
 			s, err := state.Load()
 			if err != nil {
 				if os.IsNotExist(err) {
 					fmt.Fprintln(cmd.OutOrStdout(), "not recording")
 					return nil
 				}
+				a.logErrorf(cmd.ErrOrStderr(), "state load failed: %v", err)
 				return fmt.Errorf("failed to load state: %w", err)
 			}
 

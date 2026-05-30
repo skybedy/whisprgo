@@ -10,12 +10,12 @@ import (
 func main() {
 	application, err := app.New()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "whisprgo: %v\n", err)
 		os.Exit(1)
 	}
 
 	if err := application.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "whisprgo: %v\n", err)
 		os.Exit(1)
 	}
 }
