@@ -19,11 +19,30 @@ func ResolveSecret(key string) string {
 	if v := strings.TrimSpace(os.Getenv(key)); v != "" {
 		return v
 	}
-	pairs, err := readDotEnv(EnvPath())
-	if err != nil {
-		return ""
+
+	paths := []string{
+		LocalEnvPath(),
+		EnvPath(),
 	}
-	return strings.TrimSpace(pairs[key])
+	for _, p := range paths {
+		pairs, err := readDotEnv(p)
+		if err != nil {
+			continue
+		}
+		if v := strings.TrimSpace(pairs[key]); v != "" {
+			return v
+		}
+	}
+
+	return ""
+}
+
+func LocalEnvPath() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ".env"
+	}
+	return filepath.Join(wd, ".env")
 }
 
 func readDotEnv(path string) (map[string]string, error) {

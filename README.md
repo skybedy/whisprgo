@@ -66,22 +66,26 @@ Primarni varianta je environment variable:
 
 `OPENAI_API_KEY`
 
-Volitelny fallback je soubor:
+Volitelny fallback je soubor v projektu:
+
+`./.env`
+
+Aplikace umi i fallback:
 
 `~/.config/whisprgo/.env`
 
 Priklad:
 
 ```bash
-mkdir -p ~/.config/whisprgo
-cp configs/.env.example ~/.config/whisprgo/.env
-# potom uprav OPENAI_API_KEY v ~/.config/whisprgo/.env
+cp configs/.env.example ./.env
+# potom uprav OPENAI_API_KEY v ./.env
 ```
 
 Priorita nacteni:
 
 1. `OPENAI_API_KEY` z prostredi
-2. `OPENAI_API_KEY` z `~/.config/whisprgo/.env`
+2. `OPENAI_API_KEY` z `./.env`
+3. `OPENAI_API_KEY` z `~/.config/whisprgo/.env`
 
 ## Commands
 
