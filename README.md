@@ -68,8 +68,15 @@ Stav nahravani je ulozen v:
 
 ## Project status
 
-Aktualni faze: Phase 1 (CLI skeleton, config loading, state handling, fake toggle).
-Realne nahravani pres `ffmpeg`, API volani, clipboard a paste budou nasledovat v dalsich fazich.
+Aktualni faze: Phase 7.
+
+- Phase 1: CLI skeleton, config loading, state handling.
+- Phase 2: realne nahravani pres `ffmpeg` v `toggle/status/cancel`.
+- Phase 3: `transcribe` vola OpenAI transcription API, model bere z configu a API klic z `OPENAI_API_KEY`.
+- Phase 4: `toggle` po stopu automaticky vola transkripci (lze vypnout pres `--no-transcribe`).
+- Phase 5: vystup lze kopirovat do clipboardu pres `xclip` nebo `xsel`.
+- Phase 6: optional cleanup model (OpenAI) nad transkriptem.
+- Phase 7: optional paste pres `xdotool`.
 
 ## Design principles
 

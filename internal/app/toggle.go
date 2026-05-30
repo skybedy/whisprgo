@@ -10,7 +10,9 @@ import (
 )
 
 func (a *App) newToggleCommand() *cobra.Command {
-	return &cobra.Command{
+	var noTranscribe bool
+
+	cmd := &cobra.Command{
 		Use:   "toggle",
 		Short: "Start or stop recording",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -51,7 +53,30 @@ func (a *App) newToggleCommand() *cobra.Command {
 
 			fmt.Fprintln(cmd.OutOrStdout(), "recording stopped")
 			fmt.Fprintf(cmd.OutOrStdout(), "audio: %s\n", s.AudioPath)
+
+			if noTranscribe {
+				return nil
+			}
+
+			text, err := a.transcribeAudio(cmd.Context(), s.AudioPath)
+			if err != nil {
+				return fmt.Errorf("failed to transcribe %s: %w", s.AudioPath, err)
+			}
+
+			text, err = a.maybeCleanupText(cmd.Context(), text)
+			if err != nil {
+				return fmt.Errorf("failed to cleanup transcription: %w", err)
+			}
+
+			if err := a.maybeOutputText(text); err != nil {
+				return fmt.Errorf("failed to output transcription: %w", err)
+			}
+
+			fmt.Fprintln(cmd.OutOrStdout(), text)
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolVar(&noTranscribe, "no-transcribe", false, "stop recording without automatic transcription")
+	return cmd
 }

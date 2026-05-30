@@ -2,36 +2,36 @@
 
 ## Phase 1
 
-- CLI skeleton
-- YAML config
-- state handling
-- fake toggle
+- [x] CLI skeleton
+- [x] YAML config
+- [x] state handling
+- [x] fake toggle
 
 ## Phase 2
 
-- real ffmpeg recording
-- status with running PID
-- cancel real recording
+- [x] real ffmpeg recording
+- [x] status with running PID
+- [x] cancel real recording
 
 ## Phase 3
 
-- transcribe existing audio file through OpenAI
-- read model from config
-- read API key from OPENAI_API_KEY
+- [x] transcribe existing audio file through OpenAI
+- [x] read model from config
+- [x] read API key from OPENAI_API_KEY
 
 ## Phase 4
 
-- connect toggle stop to transcription
-- print result to stdout
+- [x] connect toggle stop to transcription
+- [x] print result to stdout
 
 ## Phase 5
 
-- clipboard output via xclip/xsel
+- [x] clipboard output via xclip/xsel
 
 ## Phase 6
 
-- optional cleanup model
+- [x] optional cleanup model
 
 ## Phase 7
 
-- optional paste via xdotool
+- [x] optional paste via xdotool
