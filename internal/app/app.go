@@ -59,6 +59,7 @@ func (a *App) registerCommands() {
 	a.root.AddCommand(a.newTranscribeCommand())
 	a.root.AddCommand(a.newConfigCommand())
 	a.root.AddCommand(a.newVersionCommand())
+	a.root.AddCommand(a.newDoctorCommand())
 }
 
 func (a *App) ensureLogger(stderr io.Writer) {
