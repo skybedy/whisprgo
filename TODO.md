@@ -35,3 +35,11 @@
 ## Phase 7
 
 - [x] optional paste via xdotool
+
+## Post-MVP (Release readiness)
+
+- [x] add VERSION and `whisprgo version`
+- [x] add Linux release build targets (amd64/arm64)
+- [x] add CHANGELOG and release checklist
+- [x] add CLI smoke test script
+- [x] add GitHub Actions CI and release workflows

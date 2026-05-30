@@ -10,3 +10,4 @@
 - Modely musi byt konfigurovatelne v YAML configu.
 - API klice nepatri do configu.
 - Primarni prvni workflow je `whisprgo toggle`.
+- Projekt ma pripraveny zaklad pro release: `VERSION`, prikaz `whisprgo version`, smoke test a GitHub Actions CI/release workflow.

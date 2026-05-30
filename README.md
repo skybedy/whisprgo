@@ -37,6 +37,13 @@ Odinstalace z `/usr/local/bin`:
 sudo make uninstall
 ```
 
+Release build artifacts:
+
+```bash
+make release
+ls -la dist/
+```
+
 ## Requirements
 
 - Linux (cilene Linux Mint Cinnamon / Ubuntu)
@@ -66,6 +73,7 @@ Pouzij environment variable:
 - `whisprgo cancel`
 - `whisprgo transcribe /path/to/audio.wav`
 - `whisprgo config path`
+- `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
 
 ## Development checks
@@ -74,6 +82,7 @@ Pouzij environment variable:
 make fmt
 make test
 go build ./cmd/whisprgo
+scripts/smoke-test.sh
 ```
 
 ## Linux Mint keyboard shortcut
