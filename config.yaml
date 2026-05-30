@@ -12,7 +12,7 @@ cleanup:
 
 output:
   clipboard: true
-  paste: false
+  paste: true
   paste_delay_ms: 250
   paste_blocklist:
     - config.yaml

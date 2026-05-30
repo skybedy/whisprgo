@@ -7,8 +7,15 @@ import (
 )
 
 func TestLoadDefaultsWhenConfigDoesNotExist(t *testing.T) {
-	home := t.TempDir()
-	t.Setenv("HOME", home)
+	wd := t.TempDir()
+	origWD, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+	defer func() { _ = os.Chdir(origWD) }()
+	if err := os.Chdir(wd); err != nil {
+		t.Fatalf("chdir: %v", err)
+	}
 
 	cfg, err := Load()
 	if err != nil {
@@ -28,16 +35,18 @@ func TestLoadDefaultsWhenConfigDoesNotExist(t *testing.T) {
 }
 
 func TestLoadMergesWithDefaults(t *testing.T) {
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-
-	cfgDir := filepath.Join(home, ".config", "whisprgo")
-	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
-		t.Fatalf("failed to create config dir: %v", err)
+	wd := t.TempDir()
+	origWD, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+	defer func() { _ = os.Chdir(origWD) }()
+	if err := os.Chdir(wd); err != nil {
+		t.Fatalf("chdir: %v", err)
 	}
 
 	content := []byte("provider:\n  transcription_model: whisper-1\ncleanup:\n  enabled: true\n")
-	if err := os.WriteFile(filepath.Join(cfgDir, "config.yaml"), content, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(wd, "config.yaml"), content, 0o644); err != nil {
 		t.Fatalf("failed to write config file: %v", err)
 	}
 

@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -51,6 +52,11 @@ func (a *App) newToggleCommand() *cobra.Command {
 					a.logErrorf(cmd.ErrOrStderr(), "recording stop failed pid=%d: %v", s.PID, err)
 					return err
 				}
+			}
+
+			if err := a.recorder.WaitForFile(s.AudioPath, 5*time.Second); err != nil {
+				a.logErrorf(cmd.ErrOrStderr(), "recording file not ready audio=%s: %v", s.AudioPath, err)
+				return err
 			}
 
 			if err := state.Delete(); err != nil {

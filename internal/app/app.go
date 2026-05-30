@@ -82,7 +82,7 @@ func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Info(msg)
 	}
-	if a.verbose {
+	if a.verbose && stderr != nil {
 		fmt.Fprintf(stderr, "info: %s\n", msg)
 	}
 }
@@ -92,7 +92,7 @@ func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Error(msg)
 	}
-	if a.verbose {
+	if a.verbose && stderr != nil {
 		fmt.Fprintf(stderr, "error: %s\n", msg)
 	}
 }

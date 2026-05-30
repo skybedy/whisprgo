@@ -54,7 +54,7 @@ ls -la dist/
 
 Konfigurace je v:
 
-`~/.config/whisprgo/config.yaml`
+`./config.yaml`
 
 Pokud soubor neexistuje, aplikace pouzije defaulty v pameti.
 
@@ -97,6 +97,20 @@ Priorita nacteni:
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
 
+Tip pro spolehlive paste pres hotkey:
+
+```yaml
+output:
+  clipboard: true
+  paste: true
+  paste_delay_ms: 250
+  paste_blocklist:
+    - config.yaml
+    - .env
+```
+
+Pokud je aktivni okno blokovane v `paste_blocklist`, text zustane v clipboardu, ale automaticky paste se neprovede.
+
 ## Development checks
 
 ```bash
@@ -122,6 +136,10 @@ Stav nahravani je ulozen v:
 ## Log file
 
 Aplikace zapisuje provozni log do:
+
+`./whisprgo.log`
+
+Pokud nelze zapisovat do aktualni slozky, pouzije fallback:
 
 `~/.local/state/whisprgo/whisprgo.log`
 

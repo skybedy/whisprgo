@@ -28,7 +28,7 @@ func (r *FFmpegRecorder) Start() (Session, error) {
 		return Session{}, fmt.Errorf("failed to create recording directory: %w", err)
 	}
 
-	audioPath := filepath.Join(recordsDir, fmt.Sprintf("recording-%s.wav", time.Now().Format("2006-01-02-150405")))
+	audioPath := filepath.Join(recordsDir, fmt.Sprintf("recording-%s.wav", time.Now().Format("2006-01-02-150405.000000")))
 	cmd := exec.Command(ffmpegPath, "-y", "-f", "pulse", "-i", "default", audioPath)
 
 	if err := cmd.Start(); err != nil {
@@ -57,6 +57,23 @@ func (r *FFmpegRecorder) Stop(pid int) error {
 	}
 
 	return nil
+}
+
+func (r *FFmpegRecorder) WaitForFile(audioPath string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	for {
+		info, err := os.Stat(audioPath)
+		if err == nil && info.Size() > 0 {
+			return nil
+		}
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("failed to inspect audio file: %w", err)
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("audio file was not finalized in time: %s", audioPath)
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func (r *FFmpegRecorder) IsRunning(pid int) bool {

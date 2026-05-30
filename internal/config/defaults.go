@@ -13,8 +13,10 @@ func Default() Config {
 			Prompt:   "Uprav tento diktovany text do prirozene cestiny.\nZachovej vyznam, nic nepridavej a nic duleziteho nemaz.",
 		},
 		Output: OutputConfig{
-			Clipboard: true,
-			Paste:     false,
+			Clipboard:      true,
+			Paste:          false,
+			PasteDelayMs:   0,
+			PasteBlocklist: []string{"config.yaml", ".env"},
 		},
 		Audio: AudioConfig{
 			Input:    "default",

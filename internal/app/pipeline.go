@@ -66,8 +66,16 @@ func (a *App) maybeOutputText(text string) error {
 	}
 
 	if a.cfg.Output.Paste {
-		if err := output.PasteWithXdotool(); err != nil {
+		delay := time.Duration(a.cfg.Output.PasteDelayMs) * time.Millisecond
+		if delay < 0 {
+			delay = 0
+		}
+		pasted, title, err := output.PasteWithXdotool(delay, a.cfg.Output.PasteBlocklist)
+		if err != nil {
 			return err
+		}
+		if !pasted {
+			a.logInfof(nil, "paste skipped for active window %q", title)
 		}
 	}
 

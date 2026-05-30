@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"os"
-	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -28,8 +27,10 @@ type CleanupConfig struct {
 }
 
 type OutputConfig struct {
-	Clipboard bool `yaml:"clipboard"`
-	Paste     bool `yaml:"paste"`
+	Clipboard      bool     `yaml:"clipboard"`
+	Paste          bool     `yaml:"paste"`
+	PasteDelayMs   int      `yaml:"paste_delay_ms"`
+	PasteBlocklist []string `yaml:"paste_blocklist"`
 }
 
 type AudioConfig struct {
@@ -39,16 +40,11 @@ type AudioConfig struct {
 }
 
 func Path() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "~/.config/whisprgo/config.yaml"
-	}
-
-	return filepath.Join(home, ".config", "whisprgo", "config.yaml")
+	return "config.yaml"
 }
 
 func DisplayPath() string {
-	return "~/.config/whisprgo/config.yaml"
+	return "./config.yaml"
 }
 
 func Load() (Config, error) {
