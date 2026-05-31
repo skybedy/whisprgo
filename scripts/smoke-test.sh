@@ -5,24 +5,24 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 cleanup() {
-  go run ./cmd/whisprgo cancel >/dev/null 2>&1 || true
+  go run ./cmd/whispergo cancel >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
 # Basic commands
-go run ./cmd/whisprgo version >/dev/null
-go run ./cmd/whisprgo config path >/dev/null
-go run ./cmd/whisprgo status >/dev/null
+go run ./cmd/whispergo version >/dev/null
+go run ./cmd/whispergo config path >/dev/null
+go run ./cmd/whispergo status >/dev/null
 
 # Toggle lifecycle without API dependency
-go run ./cmd/whisprgo toggle --no-transcribe >/dev/null
-go run ./cmd/whisprgo status | grep -q "recording"
-go run ./cmd/whisprgo toggle --no-transcribe >/dev/null
-go run ./cmd/whisprgo status | grep -q "not recording"
+go run ./cmd/whispergo toggle --no-transcribe >/dev/null
+go run ./cmd/whispergo status | grep -q "recording"
+go run ./cmd/whispergo toggle --no-transcribe >/dev/null
+go run ./cmd/whispergo status | grep -q "not recording"
 
 # Transcribe validation error path (missing file)
 set +e
-out=$(go run ./cmd/whisprgo transcribe /tmp/whisprgo-missing-file.wav 2>&1)
+out=$(go run ./cmd/whispergo transcribe /tmp/whispergo-missing-file.wav 2>&1)
 code=$?
 set -e
 if [[ $code -eq 0 ]]; then

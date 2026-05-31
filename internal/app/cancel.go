@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"whisprgo/internal/state"
+	"whispergo/internal/state"
 )
 
 func (a *App) newCancelCommand() *cobra.Command {

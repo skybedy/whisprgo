@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 
-	"whisprgo/internal/config"
+	"whispergo/internal/config"
 )
 
 const openAIResponsesURL = "https://api.openai.com/v1/responses"
@@ -22,7 +22,7 @@ type OpenAICleaner struct {
 func NewOpenAICleanerFromEnv(client *http.Client) (*OpenAICleaner, error) {
 	apiKey := config.ResolveSecret("OPENAI_API_KEY")
 	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is not set (env or ~/.config/whisprgo/.env)")
+		return nil, errors.New("OPENAI_API_KEY is not set (env or ~/.config/whispergo/.env)")
 	}
 	if client == nil {
 		client = &http.Client{}

@@ -11,7 +11,7 @@ func TestResolveSecretPrefersEnvironment(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("OPENAI_API_KEY", "from-env")
 
-	cfgDir := filepath.Join(home, ".config", "whisprgo")
+	cfgDir := filepath.Join(home, ".config", "whispergo")
 	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
@@ -30,7 +30,7 @@ func TestResolveSecretFallsBackToDotEnv(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("OPENAI_API_KEY", "")
 
-	cfgDir := filepath.Join(home, ".config", "whisprgo")
+	cfgDir := filepath.Join(home, ".config", "whispergo")
 	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestResolveSecretPrefersLocalDotEnvOverHomeDotEnv(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("OPENAI_API_KEY", "")
 
-	cfgDir := filepath.Join(home, ".config", "whisprgo")
+	cfgDir := filepath.Join(home, ".config", "whispergo")
 	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}

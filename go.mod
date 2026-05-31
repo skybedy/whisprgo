@@ -1,4 +1,4 @@
-module whisprgo
+module whispergo
 
 go 1.23.0
 

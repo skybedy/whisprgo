@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"whisprgo/internal/buildinfo"
+	"whispergo/internal/buildinfo"
 )
 
 func (a *App) newVersionCommand() *cobra.Command {

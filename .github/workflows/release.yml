@@ -26,7 +26,7 @@ jobs:
       - name: Upload artifacts to workflow
         uses: actions/upload-artifact@v4
         with:
-          name: whisprgo-release
+          name: whispergo-release
           path: dist/*
 
       - name: Create GitHub release

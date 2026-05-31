@@ -13,16 +13,16 @@ type SecretSource string
 const (
 	SecretSourceEnvironment SecretSource = "environment variable"
 	SecretSourceLocalEnv    SecretSource = "./.env"
-	SecretSourceHomeEnv     SecretSource = "~/.config/whisprgo/.env"
+	SecretSourceHomeEnv     SecretSource = "~/.config/whispergo/.env"
 	SecretSourceMissing     SecretSource = "missing"
 )
 
 func EnvPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "~/.config/whisprgo/.env"
+		return "~/.config/whispergo/.env"
 	}
-	return filepath.Join(home, ".config", "whisprgo", ".env")
+	return filepath.Join(home, ".config", "whispergo", ".env")
 }
 
 func ResolveSecret(key string) string {

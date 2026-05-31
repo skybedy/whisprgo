@@ -6,10 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"whisprgo/internal/config"
-	"whisprgo/internal/logx"
-	"whisprgo/internal/notifier"
-	"whisprgo/internal/recorder"
+	"whispergo/internal/config"
+	"whispergo/internal/logx"
+	"whispergo/internal/notifier"
+	"whispergo/internal/recorder"
 )
 
 type App struct {
@@ -43,7 +43,7 @@ func (a *App) Execute() error {
 
 func (a *App) newRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "whisprgo",
+		Use:   "whispergo",
 		Short: "Minimal Linux CLI dictation tool",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			a.ensureLogger(cmd.ErrOrStderr())
