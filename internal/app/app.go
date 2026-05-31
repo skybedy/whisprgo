@@ -28,8 +28,12 @@ func New() (*App, error) {
 	}
 
 	a := &App{
-		cfg:      cfg,
-		recorder: recorder.NewFFmpegRecorder(),
+		cfg: cfg,
+		recorder: recorder.NewFFmpegRecorder(recorder.Options{
+			InputDevice: cfg.Audio.InputDevice,
+			SampleRate:  cfg.Audio.SampleRate,
+			Channels:    cfg.Audio.Channels,
+		}),
 		notifier: notifier.New(),
 	}
 	a.root = a.newRootCommand()

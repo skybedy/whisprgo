@@ -19,6 +19,9 @@ func (a *App) newToggleCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			a.logInfof(cmd.ErrOrStderr(), "toggle invoked")
 			if !state.Exists() {
+				if err := a.recorder.CleanupOrphans(); err != nil {
+					a.logErrorf(cmd.ErrOrStderr(), "orphan recorder cleanup failed: %v", err)
+				}
 				session, err := a.recorder.Start()
 				if err != nil {
 					a.logErrorf(cmd.ErrOrStderr(), "recording start failed: %v", err)
@@ -64,6 +67,12 @@ func (a *App) newToggleCommand() *cobra.Command {
 				return fmt.Errorf("failed to load state: %w", err)
 			}
 
+			if !s.Recording || s.Processing {
+				a.logInfof(cmd.ErrOrStderr(), "toggle ignored while transcription is already processing audio=%s", s.AudioPath)
+				a.notify("WhisprGo", "Prepis jeste probiha.", "dialog-information", cmd.ErrOrStderr())
+				return nil
+			}
+
 			if a.recorder.IsRunning(s.PID) {
 				if err := a.recorder.Stop(s.PID); err != nil {
 					a.logErrorf(cmd.ErrOrStderr(), "recording stop failed pid=%d: %v", s.PID, err)
@@ -78,12 +87,6 @@ func (a *App) newToggleCommand() *cobra.Command {
 				return err
 			}
 
-			if err := state.Delete(); err != nil {
-				a.logErrorf(cmd.ErrOrStderr(), "state delete failed: %v", err)
-				a.notify("WhisprGo", "Nepodarilo se uklidit recording state.", "dialog-error", cmd.ErrOrStderr())
-				return fmt.Errorf("failed to delete state: %w", err)
-			}
-
 			a.logInfof(cmd.ErrOrStderr(), "recording stopped pid=%d audio=%s", s.PID, s.AudioPath)
 			if a.notifier != nil {
 				_, err := a.notifier.NotifyWithOptions("WhisprGo", "Nahravani zastaveno.", "media-playback-stop", 1800, s.NotificationID, false)
@@ -95,8 +98,24 @@ func (a *App) newToggleCommand() *cobra.Command {
 			fmt.Fprintf(cmd.OutOrStdout(), "audio: %s\n", s.AudioPath)
 
 			if noTranscribe {
+				if err := state.Delete(); err != nil {
+					a.logErrorf(cmd.ErrOrStderr(), "state delete failed: %v", err)
+					return fmt.Errorf("failed to delete state: %w", err)
+				}
 				return nil
 			}
+
+			s.Recording = false
+			s.Processing = true
+			if err := state.Save(s); err != nil {
+				a.logErrorf(cmd.ErrOrStderr(), "state save failed before transcription: %v", err)
+				return fmt.Errorf("failed to save state: %w", err)
+			}
+			defer func() {
+				if err := state.Delete(); err != nil {
+					a.logErrorf(cmd.ErrOrStderr(), "state delete failed after transcription: %v", err)
+				}
+			}()
 
 			text, err := a.transcribeAudio(cmd.Context(), s.AudioPath)
 			if err != nil {

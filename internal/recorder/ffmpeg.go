@@ -6,16 +6,69 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 )
 
 const recordsDir = "/tmp/whisprgo"
 
-type FFmpegRecorder struct{}
+type FFmpegRecorder struct {
+	opts Options
+}
 
-func NewFFmpegRecorder() *FFmpegRecorder {
-	return &FFmpegRecorder{}
+func NewFFmpegRecorder(opts Options) *FFmpegRecorder {
+	if opts.InputDevice == "" {
+		opts.InputDevice = "default"
+	}
+	if opts.SampleRate <= 0 {
+		opts.SampleRate = 16000
+	}
+	if opts.Channels <= 0 {
+		opts.Channels = 1
+	}
+	return &FFmpegRecorder{opts: opts}
+}
+
+func (r *FFmpegRecorder) CleanupOrphans() error {
+	out, err := exec.Command("pgrep", "-f", "ffmpeg.*"+recordsDir+"/recording-.*\\.wav").Output()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			return nil
+		}
+		return fmt.Errorf("failed to find orphan ffmpeg processes: %w", err)
+	}
+
+	for _, rawPID := range strings.Fields(string(out)) {
+		pid, err := strconv.Atoi(rawPID)
+		if err != nil || pid == os.Getpid() {
+			continue
+		}
+		if !isFFmpegRecorderProcess(pid) {
+			continue
+		}
+		proc, err := os.FindProcess(pid)
+		if err != nil {
+			continue
+		}
+		if err := proc.Signal(syscall.SIGTERM); err != nil && !errors.Is(err, os.ErrProcessDone) {
+			return fmt.Errorf("failed to stop orphan ffmpeg process %d: %w", pid, err)
+		}
+	}
+	return nil
+}
+
+func isFFmpegRecorderProcess(pid int) bool {
+	raw, err := os.ReadFile(filepath.Join("/proc", strconv.Itoa(pid), "cmdline"))
+	if err != nil {
+		return false
+	}
+	cmdline := strings.ReplaceAll(string(raw), "\x00", " ")
+	return strings.Contains(cmdline, "ffmpeg") &&
+		strings.Contains(cmdline, recordsDir+"/recording-") &&
+		strings.Contains(cmdline, ".wav")
 }
 
 func (r *FFmpegRecorder) Start() (Session, error) {
@@ -29,7 +82,18 @@ func (r *FFmpegRecorder) Start() (Session, error) {
 	}
 
 	audioPath := filepath.Join(recordsDir, fmt.Sprintf("recording-%s.wav", time.Now().Format("2006-01-02-150405.000000")))
-	cmd := exec.Command(ffmpegPath, "-y", "-f", "pulse", "-i", "default", audioPath)
+	cmd := exec.Command(
+		ffmpegPath,
+		"-y",
+		"-nostdin",
+		"-loglevel", "error",
+		"-f", "pulse",
+		"-i", r.opts.InputDevice,
+		"-ar", strconv.Itoa(r.opts.SampleRate),
+		"-ac", strconv.Itoa(r.opts.Channels),
+		"-c:a", "pcm_s16le",
+		audioPath,
+	)
 
 	if err := cmd.Start(); err != nil {
 		return Session{}, fmt.Errorf("failed to start ffmpeg: %w", err)
