@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"whispergo/internal/cleanup"
-	"whispergo/internal/output"
-	"whispergo/internal/transcription"
+	"whisprgo/internal/cleanup"
+	"whisprgo/internal/output"
+	"whisprgo/internal/transcription"
 )
 
 func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, error) {

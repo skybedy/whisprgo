@@ -38,7 +38,7 @@
 
 ## Post-MVP (Release readiness)
 
-- [x] add VERSION and `whispergo version`
+- [x] add VERSION and `whisprgo version`
 - [x] add Linux release build targets (amd64/arm64)
 - [x] add CHANGELOG and release checklist
 - [x] add CLI smoke test script
@@ -49,4 +49,4 @@
 - [x] add `config init/show/get/set`
 - [x] validate supported config keys and value types
 - [x] add `auth status/set-openai-key/clear-openai-key`
-- [x] store OpenAI key in `~/.config/whispergo/.env` with secure permissions
+- [x] store OpenAI key in `~/.config/whisprgo/.env` with secure permissions

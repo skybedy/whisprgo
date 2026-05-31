@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"whispergo/internal/config"
+	"whisprgo/internal/config"
 )
 
 func (a *App) newAuthCommand() *cobra.Command {
@@ -28,7 +28,7 @@ func (a *App) newAuthCommand() *cobra.Command {
 
 	authCmd.AddCommand(&cobra.Command{
 		Use:   "set-openai-key",
-		Short: "Set OPENAI_API_KEY in ~/.config/whispergo/.env",
+		Short: "Set OPENAI_API_KEY in ~/.config/whisprgo/.env",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Fprint(cmd.OutOrStdout(), "Enter OPENAI_API_KEY: ")
 			key, err := readHiddenInput()
@@ -43,19 +43,19 @@ func (a *App) newAuthCommand() *cobra.Command {
 			if err := config.UpsertKeyInEnvFile(config.EnvPath(), "OPENAI_API_KEY", key); err != nil {
 				return fmt.Errorf("failed to save key: %w", err)
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY saved to ~/.config/whispergo/.env")
+			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY saved to ~/.config/whisprgo/.env")
 			return nil
 		},
 	})
 
 	authCmd.AddCommand(&cobra.Command{
 		Use:   "clear-openai-key",
-		Short: "Remove OPENAI_API_KEY from ~/.config/whispergo/.env",
+		Short: "Remove OPENAI_API_KEY from ~/.config/whisprgo/.env",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := config.RemoveKeyFromEnvFile(config.EnvPath(), "OPENAI_API_KEY"); err != nil {
 				return fmt.Errorf("failed to clear key: %w", err)
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY removed from ~/.config/whispergo/.env")
+			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY removed from ~/.config/whisprgo/.env")
 			return nil
 		},
 	})

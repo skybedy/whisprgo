@@ -15,7 +15,7 @@ func preserveStateFile(t *testing.T) {
 	t.Cleanup(func() {
 		_ = Delete()
 		if hadOriginal {
-			_ = os.MkdirAll("/tmp/whispergo", 0o755)
+			_ = os.MkdirAll("/tmp/whisprgo", 0o755)
 			_ = os.WriteFile(Path(), original, 0o644)
 		}
 	})
@@ -29,7 +29,7 @@ func TestSaveLoadDeleteLifecycle(t *testing.T) {
 	in := State{
 		Recording: true,
 		PID:       4242,
-		AudioPath: "/tmp/whispergo/test.wav",
+		AudioPath: "/tmp/whisprgo/test.wav",
 		StartedAt: started,
 	}
 

@@ -100,7 +100,7 @@ git status --short
 
 A navrhni commit message.
 
-## WhisperGo specifika
+## WhisprGo specifika
 
-- Bezne nastaveni patri do `config.yaml` a maji jit menit i pres `whispergo config ...`.
-- API klice nepatri do `config.yaml`; pouzivej `whispergo auth ...` a `.env` soubory.
+- Bezne nastaveni patri do `config.yaml` a maji jit menit i pres `whisprgo config ...`.
+- API klice nepatri do `config.yaml`; pouzivej `whisprgo auth ...` a `.env` soubory.

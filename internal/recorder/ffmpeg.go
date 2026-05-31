@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const recordsDir = "/tmp/whispergo"
+const recordsDir = "/tmp/whisprgo"
 
 type FFmpegRecorder struct{}
 

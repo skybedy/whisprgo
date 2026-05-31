@@ -1,12 +1,12 @@
-APP_NAME := whispergo
-CMD_PATH := ./cmd/whispergo
+APP_NAME := whisprgo
+CMD_PATH := ./cmd/whisprgo
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 DIST_DIR ?= dist
 VERSION ?= $(shell cat VERSION 2>/dev/null || echo dev)
 COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo none)
 DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
-LDFLAGS := -X 'whispergo/internal/buildinfo.Version=$(VERSION)' -X 'whispergo/internal/buildinfo.Commit=$(COMMIT)' -X 'whispergo/internal/buildinfo.Date=$(DATE)'
+LDFLAGS := -X 'whisprgo/internal/buildinfo.Version=$(VERSION)' -X 'whisprgo/internal/buildinfo.Commit=$(COMMIT)' -X 'whisprgo/internal/buildinfo.Date=$(DATE)'
 
 .PHONY: build install uninstall test fmt dev clean release release-linux-amd64 release-linux-arm64
 

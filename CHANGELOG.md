@@ -8,7 +8,7 @@
 - OpenAI transcription command with model from YAML config.
 - Optional cleanup model via OpenAI Responses API.
 - Optional clipboard output (`xclip`/`xsel`) and optional paste (`xdotool`).
-- Verbose diagnostics and file logging (`~/.local/state/whispergo/whispergo.log`).
+- Verbose diagnostics and file logging (`~/.local/state/whisprgo/whisprgo.log`).
 - `version` command and build metadata (version/commit/date).
 - Makefile with build/install/test/release targets.
 - Baseline tests for config loading and state store lifecycle.

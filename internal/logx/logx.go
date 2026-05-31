@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	localLogName    = "whispergo.log"
-	fallbackLogPath = ".local/state/whispergo/whispergo.log"
+	localLogName    = "whisprgo.log"
+	fallbackLogPath = ".local/state/whisprgo/whisprgo.log"
 )
 
 type Logger struct {

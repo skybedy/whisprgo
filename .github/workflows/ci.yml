@@ -26,7 +26,7 @@ jobs:
         run: go test ./...
 
       - name: Build
-        run: go build ./cmd/whispergo
+        run: go build ./cmd/whisprgo
 
       - name: Smoke test
         run: scripts/smoke-test.sh

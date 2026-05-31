@@ -33,7 +33,7 @@ func (n *Notifier) NotifyWithOptions(summary string, body string, icon string, e
 		return 0, nil
 	}
 
-	args := []string{"-a", "WhisperGo"}
+	args := []string{"-a", "WhisprGo"}
 	if wantID {
 		args = append(args, "-p")
 	}

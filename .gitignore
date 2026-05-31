@@ -4,7 +4,7 @@ bin/
 *.dll
 *.so
 *.dylib
-/whispergo
+/whisprgo
 
 # Build output
 build/
@@ -26,5 +26,5 @@ coverage.out
 .DS_Store
 
 # Local state
-/tmp/whispergo/
-whispergo.log
+/tmp/whisprgo/
+whisprgo.log

@@ -1,18 +1,18 @@
-# WhisperGo
+# WhisprGo
 
-WhisperGo je minimalisticky Linux CLI nastroj v Go pro diktovani.
+WhisprGo je minimalisticky Linux CLI nastroj v Go pro diktovani.
 Nahraje zvuk z mikrofonu, posle ho na speech-to-text API a vysledek vlozi do schranky.
 
 ## Goals
 
 - Vytvorit maly Linux CLI nastroj pro systemove diktovani.
-- Mit jednoduchy workflow ovladany prikazem `whispergo toggle`.
+- Mit jednoduchy workflow ovladany prikazem `whisprgo toggle`.
 - Drzet MVP bez GUI, bez daemona a bez vlastnich hotkeys.
 
 ## Basic workflow
 
-1. Prvni `whispergo toggle` spusti nahravani.
-2. Druhe `whispergo toggle` nahravani zastavi.
+1. Prvni `whisprgo toggle` spusti nahravani.
+2. Druhe `whisprgo toggle` nahravani zastavi.
 3. Audio soubor se posle na transcription API.
 4. Vysledek jde do clipboardu.
 5. Volitelne muze probehnout cleanup textu a paste pres `xdotool`.
@@ -28,7 +28,7 @@ Update lokalni binarky:
 
 ```bash
 make build
-cp ./whispergo ~/.local/bin/whispergo
+cp ./whisprgo ~/.local/bin/whisprgo
 ```
 
 Odinstalace z `/usr/local/bin`:
@@ -72,7 +72,7 @@ Volitelny fallback je soubor v projektu:
 
 Aplikace umi i fallback:
 
-`~/.config/whispergo/.env`
+`~/.config/whisprgo/.env`
 
 Priklad:
 
@@ -85,23 +85,23 @@ Priorita nacteni:
 
 1. `OPENAI_API_KEY` z prostredi
 2. `OPENAI_API_KEY` z `./.env`
-3. `OPENAI_API_KEY` z `~/.config/whispergo/.env`
+3. `OPENAI_API_KEY` z `~/.config/whisprgo/.env`
 
 ## Commands
 
-- `whispergo toggle`
-- `whispergo status`
-- `whispergo cancel`
-- `whispergo transcribe /path/to/audio.wav`
-- `whispergo config path`
-- `whispergo config init [--force]`
-- `whispergo config show`
-- `whispergo config get <key>`
-- `whispergo config set <key> <value>`
-- `whispergo auth status`
-- `whispergo auth set-openai-key`
-- `whispergo auth clear-openai-key`
-- `whispergo version`
+- `whisprgo toggle`
+- `whisprgo status`
+- `whisprgo cancel`
+- `whisprgo transcribe /path/to/audio.wav`
+- `whisprgo config path`
+- `whisprgo config init [--force]`
+- `whisprgo config show`
+- `whisprgo config get <key>`
+- `whisprgo config set <key> <value>`
+- `whisprgo auth status`
+- `whisprgo auth set-openai-key`
+- `whisprgo auth clear-openai-key`
+- `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
 
 Podporovane config keys pro `config get/set`:
@@ -138,7 +138,7 @@ Pokud je aktivni okno blokovane v `paste_blocklist`, text zustane v clipboardu, 
 ```bash
 make fmt
 make test
-go build ./cmd/whispergo
+go build ./cmd/whisprgo
 scripts/smoke-test.sh
 ```
 
@@ -147,23 +147,23 @@ scripts/smoke-test.sh
 Aplikace sama neresi globalni hotkeys.
 Hotkey se nastavi externe v Linux Mint/Cinnamon tak, aby volal:
 
-`whispergo toggle`
+`whisprgo toggle`
 
 ## State file
 
 Stav nahravani je ulozen v:
 
-`/tmp/whispergo/state.json`
+`/tmp/whisprgo/state.json`
 
 ## Log file
 
 Aplikace zapisuje provozni log do:
 
-`./whispergo.log`
+`./whisprgo.log`
 
 Pokud nelze zapisovat do aktualni slozky, pouzije fallback:
 
-`~/.local/state/whispergo/whispergo.log`
+`~/.local/state/whisprgo/whisprgo.log`
 
 ## Recording indicator
 

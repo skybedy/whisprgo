@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"whispergo/internal/state"
+	"whisprgo/internal/state"
 )
 
 func (a *App) newToggleCommand() *cobra.Command {
@@ -22,13 +22,13 @@ func (a *App) newToggleCommand() *cobra.Command {
 				session, err := a.recorder.Start()
 				if err != nil {
 					a.logErrorf(cmd.ErrOrStderr(), "recording start failed: %v", err)
-					a.notify("WhisperGo", "Nepodarilo se spustit nahravani.", "dialog-error", cmd.ErrOrStderr())
+					a.notify("WhisprGo", "Nepodarilo se spustit nahravani.", "dialog-error", cmd.ErrOrStderr())
 					return err
 				}
 
 				notificationID := 0
 				if a.notifier != nil {
-					id, err := a.notifier.NotifyWithOptions("WhisperGo", "Nahravani bezi.", "media-record", 0, 0, true)
+					id, err := a.notifier.NotifyWithOptions("WhisprGo", "Nahravani bezi.", "media-record", 0, 0, true)
 					if err != nil {
 						a.logErrorf(cmd.ErrOrStderr(), "recording notification failed: %v", err)
 					}
@@ -60,33 +60,33 @@ func (a *App) newToggleCommand() *cobra.Command {
 					return nil
 				}
 				a.logErrorf(cmd.ErrOrStderr(), "state load failed: %v", err)
-				a.notify("WhisperGo", "Nepodarilo se nacist stav nahravani.", "dialog-error", cmd.ErrOrStderr())
+				a.notify("WhisprGo", "Nepodarilo se nacist stav nahravani.", "dialog-error", cmd.ErrOrStderr())
 				return fmt.Errorf("failed to load state: %w", err)
 			}
 
 			if a.recorder.IsRunning(s.PID) {
 				if err := a.recorder.Stop(s.PID); err != nil {
 					a.logErrorf(cmd.ErrOrStderr(), "recording stop failed pid=%d: %v", s.PID, err)
-					a.notify("WhisperGo", "Nepodarilo se zastavit nahravani.", "dialog-error", cmd.ErrOrStderr())
+					a.notify("WhisprGo", "Nepodarilo se zastavit nahravani.", "dialog-error", cmd.ErrOrStderr())
 					return err
 				}
 			}
 
 			if err := a.recorder.WaitForFile(s.AudioPath, 5*time.Second); err != nil {
 				a.logErrorf(cmd.ErrOrStderr(), "recording file not ready audio=%s: %v", s.AudioPath, err)
-				a.notify("WhisperGo", "Nahravka nebyla dokoncena vcas.", "dialog-error", cmd.ErrOrStderr())
+				a.notify("WhisprGo", "Nahravka nebyla dokoncena vcas.", "dialog-error", cmd.ErrOrStderr())
 				return err
 			}
 
 			if err := state.Delete(); err != nil {
 				a.logErrorf(cmd.ErrOrStderr(), "state delete failed: %v", err)
-				a.notify("WhisperGo", "Nepodarilo se uklidit recording state.", "dialog-error", cmd.ErrOrStderr())
+				a.notify("WhisprGo", "Nepodarilo se uklidit recording state.", "dialog-error", cmd.ErrOrStderr())
 				return fmt.Errorf("failed to delete state: %w", err)
 			}
 
 			a.logInfof(cmd.ErrOrStderr(), "recording stopped pid=%d audio=%s", s.PID, s.AudioPath)
 			if a.notifier != nil {
-				_, err := a.notifier.NotifyWithOptions("WhisperGo", "Nahravani zastaveno.", "media-playback-stop", 1800, s.NotificationID, false)
+				_, err := a.notifier.NotifyWithOptions("WhisprGo", "Nahravani zastaveno.", "media-playback-stop", 1800, s.NotificationID, false)
 				if err != nil {
 					a.logErrorf(cmd.ErrOrStderr(), "stop notification failed: %v", err)
 				}
@@ -101,7 +101,7 @@ func (a *App) newToggleCommand() *cobra.Command {
 			text, err := a.transcribeAudio(cmd.Context(), s.AudioPath)
 			if err != nil {
 				a.logErrorf(cmd.ErrOrStderr(), "auto-transcribe failed audio=%s: %v", s.AudioPath, err)
-				a.notify("WhisperGo", "Prepis se nezdaril.", "dialog-error", cmd.ErrOrStderr())
+				a.notify("WhisprGo", "Prepis se nezdaril.", "dialog-error", cmd.ErrOrStderr())
 				return fmt.Errorf("failed to transcribe %s: %w", s.AudioPath, err)
 			}
 

@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	dirPath   = "/tmp/whispergo"
-	filePath  = "/tmp/whispergo/state.json"
-	fakeAudio = "/tmp/whispergo/fake-recording.wav"
+	dirPath   = "/tmp/whisprgo"
+	filePath  = "/tmp/whisprgo/state.json"
+	fakeAudio = "/tmp/whisprgo/fake-recording.wav"
 )
 
 func Path() string {

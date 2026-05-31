@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"whispergo/internal/config"
+	"whisprgo/internal/config"
 )
 
 func (a *App) newDoctorCommand() *cobra.Command {
@@ -28,7 +28,7 @@ func (a *App) newDoctorCommand() *cobra.Command {
 				fmt.Fprintf(cmd.OutOrStdout(), "%-18s %-8s %s\n", name, status, detail)
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), "whispergo doctor")
+			fmt.Fprintln(cmd.OutOrStdout(), "whisprgo doctor")
 			fmt.Fprintln(cmd.OutOrStdout(), "----------------")
 
 			_, ffmpegErr := exec.LookPath("ffmpeg")
