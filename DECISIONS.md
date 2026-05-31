@@ -16,3 +16,6 @@
 - Models are configurable through YAML config.
 - Common settings are manageable through CLI config commands (`config path/show/get/set`).
 - API keys are manageable through CLI auth commands (`auth status/set/delete`).
+- Runtime log file path is fixed to `~/.local/state/whisprgo/whisprgo.log`.
+- Recorder uses configured audio format defaults (16kHz mono) to reduce upload size and latency.
+- `toggle` must not start a new recording while previous audio is still being transcribed.

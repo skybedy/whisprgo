@@ -14,8 +14,8 @@ Nahraje zvuk z mikrofonu, posle ho na speech-to-text API a vysledek vlozi do sch
 1. Prvni `whisprgo toggle` spusti nahravani.
 2. Druhe `whisprgo toggle` nahravani zastavi.
 3. Audio soubor se posle na transcription API.
-4. Vysledek jde do clipboardu.
-5. Volitelne muze probehnout cleanup textu a paste pres `xdotool`.
+4. Volitelne muze probehnout cleanup textu.
+5. Vystup jde podle `output.mode` na stdout, do clipboardu, nebo se vlozi (`paste`) do aktivniho okna.
 
 ## Installation
 
@@ -94,6 +94,7 @@ Priorita nacteni secretu:
 - `whisprgo auth set gemini`
 - `whisprgo auth delete openai`
 - `whisprgo auth delete gemini`
+- `whisprgo doctor`
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
 
@@ -104,7 +105,11 @@ Podporovane config keys pro `config get/set`:
 - `transcription.language`
 - `cleanup.enabled`
 - `cleanup.model`
+- `cleanup.prompt`
 - `output.mode`
+- `output.file_path`
+- `output.copy_to_clipboard`
+- `output.paste_to_active_window`
 
 Minimalni priklad:
 
@@ -114,13 +119,57 @@ transcription:
   model: whisper-1
   language: cs
 cleanup:
-  enabled: true
+  enabled: false
   model: gpt-5-mini
+  prompt: Oprav pouze preklepy...
+audio:
+  input_device: default
+  sample_rate: 16000
+  channels: 1
 output:
-  mode: stdout
+  mode: paste
 security:
   secrets_backend: keyring
   allow_file_secrets: false
+```
+
+## Quick CLI setup (Linux Mint)
+
+1. Diagnostika:
+
+```bash
+whisprgo doctor
+```
+
+2. Ulozeni API klice do keyringu:
+
+```bash
+whisprgo auth set openai
+```
+
+3. Doporucene rychle nastaveni:
+
+```bash
+whisprgo config set provider openai
+whisprgo config set transcription.model whisper-1
+whisprgo config set transcription.language cs
+whisprgo config set cleanup.enabled false
+whisprgo config set output.mode paste
+```
+
+4. Otestovani:
+
+```bash
+whisprgo toggle
+whisprgo toggle
+```
+
+5. Volitelny cleanup (pomalejsi, ale kultivovanejsi text):
+
+```bash
+whisprgo config set cleanup.enabled true
+whisprgo config set cleanup.model gpt-5-mini
+whisprgo config set cleanup.prompt "Oprav pouze preklepy, interpunkci a zjevne chyby v diktovanem ceskem textu. Vrat pouze finalni opraveny text. Nevysvetluj, neptej se, nenabizej varianty, nepridavej odrazky ani zadne komentare. Pokud si nejsi jisty, zachovej puvodni formulaci."
 ```
 
 ## Development checks
@@ -147,11 +196,7 @@ Stav nahravani je ulozen v:
 
 ## Log file
 
-Aplikace zapisuje provozni log do:
-
-`./whisprgo.log`
-
-Pokud nelze zapisovat do aktualni slozky, pouzije fallback:
+Aplikace zapisuje provozni log vzdy do:
 
 `~/.local/state/whisprgo/whisprgo.log`
 
@@ -159,6 +204,7 @@ Pokud nelze zapisovat do aktualni slozky, pouzije fallback:
 
 Pri `toggle` start/stop aplikace posila desktop notifikaci pres `notify-send`, aby bylo jasne, zda nahravani bezi nebo uz bylo zastaveno.
 Pri startu je notifikace sticky (zustane viditelna), pri stopu se nahradi na "Nahravani zastaveno.".
+Pokud uz probiha transkripce predchozi nahravky, dalsi `toggle` nespusti novou nahravku.
 
 ## Project status
 

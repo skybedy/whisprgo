@@ -46,10 +46,10 @@
 
 ## Config/Auth CLI management
 
-- [x] add `config init/show/get/set`
+- [x] add `config path/show/get/set`
 - [x] validate supported config keys and value types
-- [x] add `auth status/set-openai-key/clear-openai-key`
-- [x] store OpenAI key in `~/.config/whisprgo/.env` with secure permissions
+- [x] add `auth status/set/delete <provider>`
+- [x] store secrets in keyring with env override fallback
 
 ## Security hardening (current)
 
@@ -58,3 +58,12 @@
 - [x] split secrets from config and use keyring + env priority
 - [x] add `auth set/delete <provider>` for OpenAI/Gemini
 - [x] block attempts to store secrets in `whisprgo config set ...`
+
+## Reliability/Latency hardening
+
+- [x] unify log path to `~/.local/state/whisprgo/whisprgo.log`
+- [x] parse multiple OpenAI response shapes for transcription and cleanup
+- [x] fallback to raw transcription when cleanup fails
+- [x] prevent overlapping `toggle` cycles while transcription is running
+- [x] cleanup orphan ffmpeg recorders on new start
+- [x] honor `audio.sample_rate` and `audio.channels` in ffmpeg recorder
