@@ -1,6 +1,6 @@
 provider:
     transcription: openai
-    transcription_model: whisper-1
+    transcription_model: gpt-4o-mini-transcribe
 cleanup:
     enabled: false
     provider: openai
