@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"whisprgo/internal/secrets"
 )
@@ -82,15 +83,66 @@ func (c *OpenAICleaner) Clean(ctx context.Context, input string, model string, p
 		return "", fmt.Errorf("cleanup request failed with status %s: %s", resp.Status, string(rawResp))
 	}
 
-	var parsed struct {
-		OutputText string `json:"output_text"`
+	text, err := extractCleanupText(rawResp)
+	if err != nil {
+		return "", err
 	}
-	if err := json.Unmarshal(rawResp, &parsed); err != nil {
-		return "", fmt.Errorf("failed to parse cleanup response: %w", err)
-	}
-	if parsed.OutputText == "" {
+	if text == "" {
 		return "", errors.New("empty cleanup response")
 	}
 
-	return parsed.OutputText, nil
+	return text, nil
+}
+
+func extractCleanupText(raw []byte) (string, error) {
+	var byOutputText struct {
+		OutputText string `json:"output_text"`
+	}
+	if err := json.Unmarshal(raw, &byOutputText); err == nil {
+		if v := strings.TrimSpace(byOutputText.OutputText); v != "" {
+			return v, nil
+		}
+	}
+
+	var byText struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(raw, &byText); err == nil {
+		if v := strings.TrimSpace(byText.Text); v != "" {
+			return v, nil
+		}
+	}
+
+	var generic map[string]any
+	if err := json.Unmarshal(raw, &generic); err != nil {
+		return "", fmt.Errorf("failed to parse cleanup response: %w", err)
+	}
+
+	if output, ok := generic["output"].([]any); ok {
+		var parts []string
+		for _, item := range output {
+			obj, ok := item.(map[string]any)
+			if !ok {
+				continue
+			}
+			content, ok := obj["content"].([]any)
+			if !ok {
+				continue
+			}
+			for _, c := range content {
+				cm, ok := c.(map[string]any)
+				if !ok {
+					continue
+				}
+				if txt, _ := cm["text"].(string); strings.TrimSpace(txt) != "" {
+					parts = append(parts, strings.TrimSpace(txt))
+				}
+			}
+		}
+		if len(parts) > 0 {
+			return strings.Join(parts, "\n"), nil
+		}
+	}
+
+	return "", nil
 }

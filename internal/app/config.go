@@ -39,7 +39,31 @@ func allowedConfigKeys() map[string]configKeySpec {
 			return nil
 		}},
 		"cleanup.model": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Model }, set: func(c *config.Config, v string) error { c.Cleanup.Model = v; return nil }},
-		"output.mode":   {valueType: configTypeString, get: func(c config.Config) string { return c.Output.Mode }, set: func(c *config.Config, v string) error { c.Output.Mode = v; return nil }},
+		"cleanup.prompt": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Prompt }, set: func(c *config.Config, v string) error {
+			c.Cleanup.Prompt = v
+			return nil
+		}},
+		"output.mode": {valueType: configTypeString, get: func(c config.Config) string { return c.Output.Mode }, set: func(c *config.Config, v string) error { c.Output.Mode = v; return nil }},
+		"output.file_path": {valueType: configTypeString, get: func(c config.Config) string { return c.Output.FilePath }, set: func(c *config.Config, v string) error {
+			c.Output.FilePath = v
+			return nil
+		}},
+		"output.copy_to_clipboard": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Output.CopyToClipboard) }, set: func(c *config.Config, v string) error {
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return fmt.Errorf("output.copy_to_clipboard expects true/false")
+			}
+			c.Output.CopyToClipboard = b
+			return nil
+		}},
+		"output.paste_to_active_window": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Output.PasteToActiveWindow) }, set: func(c *config.Config, v string) error {
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return fmt.Errorf("output.paste_to_active_window expects true/false")
+			}
+			c.Output.PasteToActiveWindow = b
+			return nil
+		}},
 	}
 }
 

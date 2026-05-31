@@ -105,10 +105,11 @@ func (a *App) newToggleCommand() *cobra.Command {
 				return fmt.Errorf("failed to transcribe %s: %w", s.AudioPath, err)
 			}
 
-			text, err = a.maybeCleanupText(cmd.Context(), text)
+			cleaned, err := a.maybeCleanupText(cmd.Context(), text)
 			if err != nil {
-				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed: %v", err)
-				return fmt.Errorf("failed to cleanup transcription: %w", err)
+				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed, using raw transcription: %v", err)
+			} else {
+				text = cleaned
 			}
 
 			if err := a.maybeOutputText(text); err != nil {

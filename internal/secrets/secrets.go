@@ -77,6 +77,28 @@ func Get(provider string) (string, Source, error) {
 	return v, SourceKeyring, nil
 }
 
+func SourceFor(provider string) (Source, error) {
+	envKey, secretKey, err := providerSpec(provider)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(os.Getenv(envKey)) != "" {
+		return SourceEnv, nil
+	}
+	kr, err := openKeyring()
+	if err != nil {
+		return "", fmt.Errorf("keyring unavailable")
+	}
+	item, err := kr.Get(secretKey)
+	if err != nil {
+		return "", fmt.Errorf("secret missing")
+	}
+	if strings.TrimSpace(string(item.Data)) == "" {
+		return "", fmt.Errorf("secret empty")
+	}
+	return SourceKeyring, nil
+}
+
 func Set(provider, value string) error {
 	_, secretKey, err := providerSpec(provider)
 	if err != nil {

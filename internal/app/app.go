@@ -34,6 +34,8 @@ func New() (*App, error) {
 	}
 	a.root = a.newRootCommand()
 	a.registerCommands()
+	a.ensureLogger(nil)
+	a.logInfof(nil, "app initialized config_path=%s provider=%s output_mode=%s", config.Path(), cfg.Provider, cfg.Output.Mode)
 	return a, nil
 }
 

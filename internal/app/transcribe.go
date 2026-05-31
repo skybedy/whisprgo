@@ -30,10 +30,11 @@ func (a *App) newTranscribeCommand() *cobra.Command {
 				return err
 			}
 
-			text, err = a.maybeCleanupText(cmd.Context(), text)
+			cleaned, err := a.maybeCleanupText(cmd.Context(), text)
 			if err != nil {
-				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed: %v", err)
-				return err
+				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed, using raw transcription: %v", err)
+			} else {
+				text = cleaned
 			}
 
 			if err := a.maybeOutputText(text); err != nil {

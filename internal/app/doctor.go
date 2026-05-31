@@ -55,6 +55,13 @@ func (a *App) newDoctorCommand() *cobra.Command {
 				printCheck("config.yaml", false, cfgPath+" (optional, defaults are used)")
 			}
 
+			a.ensureLogger(cmd.ErrOrStderr())
+			if a.logger != nil {
+				printCheck("log file", true, a.logger.Path())
+			} else {
+				printCheck("log file", false, "logger unavailable")
+			}
+
 			fmt.Fprintf(cmd.OutOrStdout(), "\nissues: %d\n", issues)
 			if strict && issues > 0 {
 				return fmt.Errorf("doctor found %d issue(s)", issues)

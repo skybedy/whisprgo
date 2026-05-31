@@ -12,7 +12,7 @@ func Default() Config {
 			Enabled:        true,
 			Model:          "gpt-5-mini",
 			TimeoutSeconds: 120,
-			Prompt:         "Uprav tento diktovany text do prirozene cestiny. Zachovej vyznam.",
+			Prompt:         "Oprav pouze preklepy, interpunkci a zjevne chyby v diktovanem ceskem textu. Vrat pouze finalni opraveny text. Nevysvetluj, neptej se, nenabizej varianty, nepridavej odrazky ani zadne komentare. Pokud si nejsi jisty, zachovej puvodni formulaci.",
 		},
 		Audio: AudioConfig{
 			InputDevice: "default",

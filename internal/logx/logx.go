@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	localLogName    = "whisprgo.log"
-	fallbackLogPath = ".local/state/whisprgo/whisprgo.log"
+	logDirName  = "whisprgo"
+	logFileName = "whisprgo.log"
 )
 
 type Logger struct {
@@ -17,22 +17,16 @@ type Logger struct {
 }
 
 func New() (*Logger, error) {
-	// Primary location: log file directly in current app directory.
-	if wd, err := os.Getwd(); err == nil {
-		localPath := filepath.Join(wd, localLogName)
-		if f, err := os.OpenFile(localPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); err == nil {
-			_ = f.Close()
-			return &Logger{path: localPath}, nil
+	stateDir := os.Getenv("XDG_STATE_HOME")
+	if stateDir == "" {
+		home, homeErr := os.UserHomeDir()
+		if homeErr != nil {
+			return nil, fmt.Errorf("failed to resolve log directory: %w", homeErr)
 		}
+		stateDir = filepath.Join(home, ".local", "state")
 	}
 
-	// Fallback: user state directory if local path is unavailable.
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve home directory for logging: %w", err)
-	}
-
-	path := filepath.Join(home, fallbackLogPath)
+	path := filepath.Join(stateDir, logDirName, logFileName)
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create log directory: %w", err)
 	}

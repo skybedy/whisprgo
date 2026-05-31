@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"whisprgo/internal/secrets"
 )
@@ -91,16 +92,68 @@ func (p *OpenAIProvider) Transcribe(ctx context.Context, audioPath string, model
 		return "", fmt.Errorf("transcription request failed with status %s: %s", resp.Status, string(raw))
 	}
 
-	var parsed struct {
-		Text string `json:"text"`
+	text, err := extractTranscriptionText(raw)
+	if err != nil {
+		return "", err
 	}
-	if err := json.Unmarshal(raw, &parsed); err != nil {
-		return "", fmt.Errorf("failed to parse transcription response: %w", err)
-	}
-
-	if parsed.Text == "" {
+	if text == "" {
 		return "", errors.New("empty transcription response")
 	}
 
-	return parsed.Text, nil
+	return text, nil
+}
+
+func extractTranscriptionText(raw []byte) (string, error) {
+	var byText struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(raw, &byText); err == nil {
+		if v := strings.TrimSpace(byText.Text); v != "" {
+			return v, nil
+		}
+	}
+
+	var byOutputText struct {
+		OutputText string `json:"output_text"`
+	}
+	if err := json.Unmarshal(raw, &byOutputText); err == nil {
+		if v := strings.TrimSpace(byOutputText.OutputText); v != "" {
+			return v, nil
+		}
+	}
+
+	var generic map[string]any
+	if err := json.Unmarshal(raw, &generic); err != nil {
+		return "", fmt.Errorf("failed to parse transcription response: %w", err)
+	}
+
+	if output, ok := generic["output"].([]any); ok {
+		var parts []string
+		for _, item := range output {
+			obj, ok := item.(map[string]any)
+			if !ok {
+				continue
+			}
+			content, ok := obj["content"].([]any)
+			if !ok {
+				continue
+			}
+			for _, c := range content {
+				cm, ok := c.(map[string]any)
+				if !ok {
+					continue
+				}
+				if t, _ := cm["type"].(string); t == "output_text" {
+					if txt, _ := cm["text"].(string); strings.TrimSpace(txt) != "" {
+						parts = append(parts, strings.TrimSpace(txt))
+					}
+				}
+			}
+		}
+		if len(parts) > 0 {
+			return strings.Join(parts, "\n"), nil
+		}
+	}
+
+	return "", nil
 }
