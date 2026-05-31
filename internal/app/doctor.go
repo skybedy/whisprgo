@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"whisprgo/internal/config"
+	"whisprgo/internal/secrets"
 )
 
 func (a *App) newDoctorCommand() *cobra.Command {
@@ -44,8 +45,8 @@ func (a *App) newDoctorCommand() *cobra.Command {
 			_, notifyErr := exec.LookPath("notify-send")
 			printCheck("notify-send", notifyErr == nil, "desktop recording notifications")
 
-			apiKey := config.ResolveSecret("OPENAI_API_KEY")
-			printCheck("OPENAI_API_KEY", apiKey != "", "env or .env")
+			_, _, openAIErr := secrets.Get("openai")
+			printCheck("OPENAI_API_KEY", openAIErr == nil, "env or keyring")
 
 			cfgPath := config.Path()
 			if _, err := os.Stat(cfgPath); err == nil {

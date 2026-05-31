@@ -2,26 +2,33 @@ package config
 
 func Default() Config {
 	return Config{
-		Provider: ProviderConfig{
-			Transcription:      "openai",
-			TranscriptionModel: "gpt-4o-mini-transcribe",
+		Provider: "openai",
+		Transcription: TranscriptionConfig{
+			Model:          "whisper-1",
+			Language:       "cs",
+			TimeoutSeconds: 120,
 		},
 		Cleanup: CleanupConfig{
-			Enabled:  false,
-			Provider: "openai",
-			Model:    "gpt-4o-mini",
-			Prompt:   "Uprav tento diktovany text do prirozene cestiny.\nZachovej vyznam, nic nepridavej a nic duleziteho nemaz.",
-		},
-		Output: OutputConfig{
-			Clipboard:      true,
-			Paste:          false,
-			PasteDelayMs:   0,
-			PasteBlocklist: []string{"config.yaml", ".env"},
+			Enabled:        true,
+			Model:          "gpt-5-mini",
+			TimeoutSeconds: 120,
+			Prompt:         "Uprav tento diktovany text do prirozene cestiny. Zachovej vyznam.",
 		},
 		Audio: AudioConfig{
-			Input:    "default",
-			Format:   "wav",
-			Recorder: "ffmpeg",
+			InputDevice: "default",
+			SampleRate:  16000,
+			Channels:    1,
+			Format:      "wav",
+		},
+		Output: OutputConfig{
+			Mode:                "stdout",
+			FilePath:            "",
+			CopyToClipboard:     false,
+			PasteToActiveWindow: false,
+		},
+		Security: SecurityConfig{
+			SecretsBackend:   "keyring",
+			AllowFileSecrets: false,
 		},
 	}
 }

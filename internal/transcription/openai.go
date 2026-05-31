@@ -12,7 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"whisprgo/internal/config"
+	"whisprgo/internal/secrets"
 )
 
 const openAITranscriptionURL = "https://api.openai.com/v1/audio/transcriptions"
@@ -22,10 +22,16 @@ type OpenAIProvider struct {
 	client *http.Client
 }
 
-func NewOpenAIProviderFromEnv(client *http.Client) (*OpenAIProvider, error) {
-	apiKey := config.ResolveSecret("OPENAI_API_KEY")
+func NewOpenAIProviderFromSecrets(client *http.Client) (*OpenAIProvider, error) {
+	apiKey := func() string {
+		v, _, err := secrets.Get("openai")
+		if err != nil {
+			return ""
+		}
+		return v
+	}()
 	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is not set (env or ~/.config/whisprgo/.env)")
+		return nil, errors.New("OPENAI_API_KEY is not set (env or keyring)")
 	}
 
 	if client == nil {

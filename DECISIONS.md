@@ -9,10 +9,10 @@
 - No global hotkey handling inside the app.
 - Keyboard shortcut will be configured externally in Linux Mint/Cinnamon.
 - State file path is `/tmp/whisprgo/state.json`.
-- Config file path is `./config.yaml`.
-- API keys are stored in environment variables, not in config.
+- Config file path is `<UserConfigDir>/whisprgo/config.yaml` (via `os.UserConfigDir`).
+- API keys are never stored in config and are resolved from env first, then keyring.
 - Recording will be delegated to external tools such as ffmpeg.
 - Transcription and cleanup are separate concepts.
 - Models are configurable through YAML config.
-- Common settings are manageable through CLI config commands (`config init/show/get/set`).
-- API keys are manageable through CLI auth commands and are stored outside `config.yaml`.
+- Common settings are manageable through CLI config commands (`config path/show/get/set`).
+- API keys are manageable through CLI auth commands (`auth status/set/delete`).

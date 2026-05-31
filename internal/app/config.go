@@ -17,7 +17,6 @@ type configValueType string
 const (
 	configTypeString configValueType = "string"
 	configTypeBool   configValueType = "bool"
-	configTypeInt    configValueType = "int"
 )
 
 type configKeySpec struct {
@@ -28,126 +27,32 @@ type configKeySpec struct {
 
 func allowedConfigKeys() map[string]configKeySpec {
 	return map[string]configKeySpec{
-		"provider.transcription": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Provider.Transcription },
-			set: func(c *config.Config, value string) error {
-				c.Provider.Transcription = value
-				return nil
-			},
-		},
-		"provider.transcription_model": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Provider.TranscriptionModel },
-			set: func(c *config.Config, value string) error {
-				c.Provider.TranscriptionModel = value
-				return nil
-			},
-		},
-		"cleanup.enabled": {
-			valueType: configTypeBool,
-			get:       func(c config.Config) string { return strconv.FormatBool(c.Cleanup.Enabled) },
-			set: func(c *config.Config, value string) error {
-				b, err := strconv.ParseBool(value)
-				if err != nil {
-					return fmt.Errorf("cleanup.enabled expects true/false")
-				}
-				c.Cleanup.Enabled = b
-				return nil
-			},
-		},
-		"cleanup.provider": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Cleanup.Provider },
-			set: func(c *config.Config, value string) error {
-				c.Cleanup.Provider = value
-				return nil
-			},
-		},
-		"cleanup.model": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Cleanup.Model },
-			set: func(c *config.Config, value string) error {
-				c.Cleanup.Model = value
-				return nil
-			},
-		},
-		"cleanup.prompt": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Cleanup.Prompt },
-			set: func(c *config.Config, value string) error {
-				c.Cleanup.Prompt = value
-				return nil
-			},
-		},
-		"output.clipboard": {
-			valueType: configTypeBool,
-			get:       func(c config.Config) string { return strconv.FormatBool(c.Output.Clipboard) },
-			set: func(c *config.Config, value string) error {
-				b, err := strconv.ParseBool(value)
-				if err != nil {
-					return fmt.Errorf("output.clipboard expects true/false")
-				}
-				c.Output.Clipboard = b
-				return nil
-			},
-		},
-		"output.paste": {
-			valueType: configTypeBool,
-			get:       func(c config.Config) string { return strconv.FormatBool(c.Output.Paste) },
-			set: func(c *config.Config, value string) error {
-				b, err := strconv.ParseBool(value)
-				if err != nil {
-					return fmt.Errorf("output.paste expects true/false")
-				}
-				c.Output.Paste = b
-				return nil
-			},
-		},
-		"output.paste_delay_ms": {
-			valueType: configTypeInt,
-			get:       func(c config.Config) string { return strconv.Itoa(c.Output.PasteDelayMs) },
-			set: func(c *config.Config, value string) error {
-				i, err := strconv.Atoi(value)
-				if err != nil {
-					return fmt.Errorf("output.paste_delay_ms expects integer")
-				}
-				c.Output.PasteDelayMs = i
-				return nil
-			},
-		},
-		"audio.input": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Audio.Input },
-			set: func(c *config.Config, value string) error {
-				c.Audio.Input = value
-				return nil
-			},
-		},
-		"audio.format": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Audio.Format },
-			set: func(c *config.Config, value string) error {
-				c.Audio.Format = value
-				return nil
-			},
-		},
-		"audio.recorder": {
-			valueType: configTypeString,
-			get:       func(c config.Config) string { return c.Audio.Recorder },
-			set: func(c *config.Config, value string) error {
-				c.Audio.Recorder = value
-				return nil
-			},
-		},
+		"provider":               {valueType: configTypeString, get: func(c config.Config) string { return c.Provider }, set: func(c *config.Config, v string) error { c.Provider = v; return nil }},
+		"transcription.model":    {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Model }, set: func(c *config.Config, v string) error { c.Transcription.Model = v; return nil }},
+		"transcription.language": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Language }, set: func(c *config.Config, v string) error { c.Transcription.Language = v; return nil }},
+		"cleanup.enabled": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Cleanup.Enabled) }, set: func(c *config.Config, v string) error {
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return fmt.Errorf("cleanup.enabled expects true/false")
+			}
+			c.Cleanup.Enabled = b
+			return nil
+		}},
+		"cleanup.model": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Model }, set: func(c *config.Config, v string) error { c.Cleanup.Model = v; return nil }},
+		"output.mode":   {valueType: configTypeString, get: func(c config.Config) string { return c.Output.Mode }, set: func(c *config.Config, v string) error { c.Output.Mode = v; return nil }},
 	}
 }
 
-func (a *App) newConfigCommand() *cobra.Command {
-	configCmd := &cobra.Command{
-		Use:   "config",
-		Short: "Config helpers",
+func isSecretKeyPath(key string) bool {
+	k := strings.ToLower(strings.TrimSpace(key))
+	if strings.Contains(k, "api_key") || strings.Contains(k, "secrets") {
+		return true
 	}
+	return k == "openai_api_key" || k == "gemini_api_key" || k == "api_key"
+}
+
+func (a *App) newConfigCommand() *cobra.Command {
+	configCmd := &cobra.Command{Use: "config", Short: "Config helpers"}
 
 	configCmd.AddCommand(&cobra.Command{
 		Use:   "path",
@@ -156,35 +61,6 @@ func (a *App) newConfigCommand() *cobra.Command {
 			fmt.Fprintln(cmd.OutOrStdout(), config.DisplayPath())
 		},
 	})
-
-	initCmd := &cobra.Command{
-		Use:   "init",
-		Short: "Create default config if missing",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			force, _ := cmd.Flags().GetBool("force")
-			if config.Exists() && !force {
-				fmt.Fprintf(cmd.OutOrStdout(), "config exists at %s. overwrite? [y/N]: ", config.DisplayPath())
-				var answer string
-				if _, err := fmt.Fscanln(cmd.InOrStdin(), &answer); err != nil {
-					return errors.New("aborted: config exists (use --force to overwrite)")
-				}
-				answer = strings.ToLower(strings.TrimSpace(answer))
-				if answer != "y" && answer != "yes" {
-					return errors.New("aborted: config exists")
-				}
-			}
-
-			cfg := config.Default()
-			if err := config.Save(cfg); err != nil {
-				return fmt.Errorf("failed to write config: %w", err)
-			}
-			a.cfg = cfg
-			fmt.Fprintf(cmd.OutOrStdout(), "config initialized at %s\n", config.DisplayPath())
-			return nil
-		},
-	}
-	initCmd.Flags().Bool("force", false, "overwrite existing config without prompt")
-	configCmd.AddCommand(initCmd)
 
 	configCmd.AddCommand(&cobra.Command{
 		Use:   "show",
@@ -230,8 +106,8 @@ func (a *App) newConfigCommand() *cobra.Command {
 			key := strings.TrimSpace(args[0])
 			value := args[1]
 
-			if strings.Contains(strings.ToLower(key), "api_key") {
-				return errors.New("API keys are not accepted in config; use auth commands or .env")
+			if isSecretKeyPath(key) {
+				return errors.New("API keys are secrets. Use: whisprgo auth set openai")
 			}
 			spec, ok := allowedConfigKeys()[key]
 			if !ok {

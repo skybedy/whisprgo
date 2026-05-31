@@ -9,43 +9,56 @@ import (
 )
 
 type Config struct {
-	Provider ProviderConfig `yaml:"provider"`
-	Cleanup  CleanupConfig  `yaml:"cleanup"`
-	Output   OutputConfig   `yaml:"output"`
-	Audio    AudioConfig    `yaml:"audio"`
+	Provider      string              `yaml:"provider"`
+	Transcription TranscriptionConfig `yaml:"transcription"`
+	Cleanup       CleanupConfig       `yaml:"cleanup"`
+	Audio         AudioConfig         `yaml:"audio"`
+	Output        OutputConfig        `yaml:"output"`
+	Security      SecurityConfig      `yaml:"security"`
 }
 
-type ProviderConfig struct {
-	Transcription      string `yaml:"transcription"`
-	TranscriptionModel string `yaml:"transcription_model"`
+type TranscriptionConfig struct {
+	Model          string `yaml:"model"`
+	Language       string `yaml:"language"`
+	TimeoutSeconds int    `yaml:"timeout_seconds"`
 }
 
 type CleanupConfig struct {
-	Enabled  bool   `yaml:"enabled"`
-	Provider string `yaml:"provider"`
-	Model    string `yaml:"model"`
-	Prompt   string `yaml:"prompt"`
-}
-
-type OutputConfig struct {
-	Clipboard      bool     `yaml:"clipboard"`
-	Paste          bool     `yaml:"paste"`
-	PasteDelayMs   int      `yaml:"paste_delay_ms"`
-	PasteBlocklist []string `yaml:"paste_blocklist"`
+	Enabled        bool   `yaml:"enabled"`
+	Model          string `yaml:"model"`
+	TimeoutSeconds int    `yaml:"timeout_seconds"`
+	Prompt         string `yaml:"prompt"`
 }
 
 type AudioConfig struct {
-	Input    string `yaml:"input"`
-	Format   string `yaml:"format"`
-	Recorder string `yaml:"recorder"`
+	InputDevice string `yaml:"input_device"`
+	SampleRate  int    `yaml:"sample_rate"`
+	Channels    int    `yaml:"channels"`
+	Format      string `yaml:"format"`
+}
+
+type OutputConfig struct {
+	Mode                string `yaml:"mode"`
+	FilePath            string `yaml:"file_path"`
+	CopyToClipboard     bool   `yaml:"copy_to_clipboard"`
+	PasteToActiveWindow bool   `yaml:"paste_to_active_window"`
+}
+
+type SecurityConfig struct {
+	SecretsBackend   string `yaml:"secrets_backend"`
+	AllowFileSecrets bool   `yaml:"allow_file_secrets"`
 }
 
 func Path() string {
-	return "config.yaml"
+	cfgDir, err := os.UserConfigDir()
+	if err != nil || cfgDir == "" {
+		return filepath.Join(".", "config.yaml")
+	}
+	return filepath.Join(cfgDir, "whisprgo", "config.yaml")
 }
 
 func DisplayPath() string {
-	return "./config.yaml"
+	return Path()
 }
 
 func Load() (Config, error) {
@@ -54,16 +67,16 @@ func Load() (Config, error) {
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return cfg, nil
+		if !errors.Is(err, os.ErrNotExist) {
+			return Config{}, err
 		}
-		return Config{}, err
+	} else {
+		if err := yaml.Unmarshal(data, &cfg); err != nil {
+			return Config{}, err
+		}
 	}
 
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return Config{}, err
-	}
-
+	ApplyEnvOverrides(&cfg)
 	return cfg, nil
 }
 

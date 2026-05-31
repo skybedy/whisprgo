@@ -8,54 +8,60 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"whisprgo/internal/config"
+	"whisprgo/internal/secrets"
 )
 
 func (a *App) newAuthCommand() *cobra.Command {
-	authCmd := &cobra.Command{
-		Use:   "auth",
-		Short: "Authentication helpers",
-	}
+	authCmd := &cobra.Command{Use: "auth", Short: "Authentication helpers"}
 
 	authCmd.AddCommand(&cobra.Command{
 		Use:   "status",
-		Short: "Show OPENAI_API_KEY availability source",
+		Short: "Show secrets configuration status",
 		Run: func(cmd *cobra.Command, args []string) {
-			_, source := config.ResolveSecretWithSource("OPENAI_API_KEY")
-			fmt.Fprintf(cmd.OutOrStdout(), "OPENAI_API_KEY: %s\n", source)
+			fmt.Fprintf(cmd.OutOrStdout(), "OpenAI: %s\n", secrets.Status("openai"))
+			fmt.Fprintf(cmd.OutOrStdout(), "Gemini: %s\n", secrets.Status("gemini"))
 		},
 	})
 
 	authCmd.AddCommand(&cobra.Command{
-		Use:   "set-openai-key",
-		Short: "Set OPENAI_API_KEY in ~/.config/whisprgo/.env",
+		Use:   "set <provider>",
+		Short: "Set provider API key in keyring",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Fprint(cmd.OutOrStdout(), "Enter OPENAI_API_KEY: ")
+			provider := strings.ToLower(strings.TrimSpace(args[0]))
+			if provider != "openai" && provider != "gemini" {
+				return fmt.Errorf("supported providers: openai, gemini")
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Enter %s API key: ", strings.ToUpper(provider))
 			key, err := readHiddenInput()
 			fmt.Fprintln(cmd.OutOrStdout())
 			if err != nil {
 				return fmt.Errorf("failed to read key: %w", err)
 			}
-			key = strings.TrimSpace(key)
-			if key == "" {
+			if strings.TrimSpace(key) == "" {
 				return fmt.Errorf("key cannot be empty")
 			}
-			if err := config.UpsertKeyInEnvFile(config.EnvPath(), "OPENAI_API_KEY", key); err != nil {
-				return fmt.Errorf("failed to save key: %w", err)
+			if err := secrets.Set(provider, key); err != nil {
+				return err
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY saved to ~/.config/whisprgo/.env")
+			fmt.Fprintf(cmd.OutOrStdout(), "%s key stored in keyring\n", strings.Title(provider))
 			return nil
 		},
 	})
 
 	authCmd.AddCommand(&cobra.Command{
-		Use:   "clear-openai-key",
-		Short: "Remove OPENAI_API_KEY from ~/.config/whisprgo/.env",
+		Use:   "delete <provider>",
+		Short: "Delete provider API key from keyring",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := config.RemoveKeyFromEnvFile(config.EnvPath(), "OPENAI_API_KEY"); err != nil {
-				return fmt.Errorf("failed to clear key: %w", err)
+			provider := strings.ToLower(strings.TrimSpace(args[0]))
+			if provider != "openai" && provider != "gemini" {
+				return fmt.Errorf("supported providers: openai, gemini")
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "OPENAI_API_KEY removed from ~/.config/whisprgo/.env")
+			if err := secrets.Delete(provider); err != nil {
+				return err
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "%s key deleted from keyring\n", strings.Title(provider))
 			return nil
 		},
 	})

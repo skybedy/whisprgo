@@ -50,3 +50,11 @@
 - [x] validate supported config keys and value types
 - [x] add `auth status/set-openai-key/clear-openai-key`
 - [x] store OpenAI key in `~/.config/whisprgo/.env` with secure permissions
+
+## Security hardening (current)
+
+- [x] move config path to OS user config dir
+- [x] add env overrides (`WHISPRGO_*`) for selected non-secret keys
+- [x] split secrets from config and use keyring + env priority
+- [x] add `auth set/delete <provider>` for OpenAI/Gemini
+- [x] block attempts to store secrets in `whisprgo config set ...`

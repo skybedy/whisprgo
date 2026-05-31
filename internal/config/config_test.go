@@ -6,16 +6,20 @@ import (
 	"testing"
 )
 
+func TestPathUsesUserConfigDir(t *testing.T) {
+	xdg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+
+	got := Path()
+	want := filepath.Join(xdg, "whisprgo", "config.yaml")
+	if got != want {
+		t.Fatalf("unexpected path: got %q want %q", got, want)
+	}
+}
+
 func TestLoadDefaultsWhenConfigDoesNotExist(t *testing.T) {
-	wd := t.TempDir()
-	origWD, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("getwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origWD) }()
-	if err := os.Chdir(wd); err != nil {
-		t.Fatalf("chdir: %v", err)
-	}
+	xdg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdg)
 
 	cfg, err := Load()
 	if err != nil {
@@ -23,30 +27,24 @@ func TestLoadDefaultsWhenConfigDoesNotExist(t *testing.T) {
 	}
 
 	def := Default()
-	if cfg.Provider.Transcription != def.Provider.Transcription {
-		t.Fatalf("unexpected provider.transcription: got %q want %q", cfg.Provider.Transcription, def.Provider.Transcription)
+	if cfg.Provider != def.Provider {
+		t.Fatalf("unexpected provider: got %q want %q", cfg.Provider, def.Provider)
 	}
-	if cfg.Provider.TranscriptionModel != def.Provider.TranscriptionModel {
-		t.Fatalf("unexpected provider.transcription_model: got %q want %q", cfg.Provider.TranscriptionModel, def.Provider.TranscriptionModel)
-	}
-	if cfg.Output.Clipboard != def.Output.Clipboard {
-		t.Fatalf("unexpected output.clipboard: got %v want %v", cfg.Output.Clipboard, def.Output.Clipboard)
+	if cfg.Transcription.Model != def.Transcription.Model {
+		t.Fatalf("unexpected transcription.model: got %q want %q", cfg.Transcription.Model, def.Transcription.Model)
 	}
 }
 
 func TestLoadMergesWithDefaults(t *testing.T) {
-	wd := t.TempDir()
-	origWD, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("getwd: %v", err)
-	}
-	defer func() { _ = os.Chdir(origWD) }()
-	if err := os.Chdir(wd); err != nil {
-		t.Fatalf("chdir: %v", err)
+	xdg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	cfgPath := filepath.Join(xdg, "whisprgo", "config.yaml")
+	if err := os.MkdirAll(filepath.Dir(cfgPath), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
 	}
 
-	content := []byte("provider:\n  transcription_model: whisper-1\ncleanup:\n  enabled: true\n")
-	if err := os.WriteFile(filepath.Join(wd, "config.yaml"), content, 0o644); err != nil {
+	content := []byte("provider: openai\ntranscription:\n  model: whisper-1\ncleanup:\n  enabled: false\n")
+	if err := os.WriteFile(cfgPath, content, 0o644); err != nil {
 		t.Fatalf("failed to write config file: %v", err)
 	}
 
@@ -55,16 +53,10 @@ func TestLoadMergesWithDefaults(t *testing.T) {
 		t.Fatalf("Load() returned error: %v", err)
 	}
 
-	if cfg.Provider.Transcription != "openai" {
-		t.Fatalf("expected default provider.transcription to remain openai, got %q", cfg.Provider.Transcription)
+	if cfg.Transcription.Model != "whisper-1" {
+		t.Fatalf("expected transcription.model override, got %q", cfg.Transcription.Model)
 	}
-	if cfg.Provider.TranscriptionModel != "whisper-1" {
-		t.Fatalf("expected provider.transcription_model override, got %q", cfg.Provider.TranscriptionModel)
-	}
-	if !cfg.Cleanup.Enabled {
-		t.Fatalf("expected cleanup.enabled override true")
-	}
-	if cfg.Output.Clipboard != true {
-		t.Fatalf("expected default output.clipboard true")
+	if cfg.Transcription.Language == "" {
+		t.Fatalf("expected default transcription.language to remain set")
 	}
 }

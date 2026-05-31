@@ -11,5 +11,5 @@
 - API klice nepatri do configu.
 - Primarni prvni workflow je `whisprgo toggle`.
 - Projekt ma pripraveny zaklad pro release: `VERSION`, prikaz `whisprgo version`, smoke test a GitHub Actions CI/release workflow.
-- Konfigurace je spravovatelna i pres CLI (`config init/show/get/set`), bez nutnosti rucni editace YAML.
-- API key je spravovatelny pres CLI (`auth status/set-openai-key/clear-openai-key`) a uklada se do `~/.config/whisprgo/.env`.
+- Konfigurace je v OS user config dir (`$XDG_CONFIG_HOME/whisprgo/config.yaml`, fallback `~/.config/whisprgo/config.yaml`) a je spravovatelna pres CLI (`config path/show/get/set`).
+- API keys jsou resene jako secrets: priorita je env (`OPENAI_API_KEY`, `GEMINI_API_KEY`) a fallback je systemovy keyring pres `auth status/set/delete`.

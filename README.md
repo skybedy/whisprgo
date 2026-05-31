@@ -54,7 +54,11 @@ ls -la dist/
 
 Konfigurace je v:
 
-`./config.yaml`
+`$XDG_CONFIG_HOME/whisprgo/config.yaml`
+
+Fallback:
+
+`~/.config/whisprgo/config.yaml`
 
 Pokud soubor neexistuje, aplikace pouzije defaulty v pameti.
 
@@ -62,30 +66,18 @@ Pokud soubor neexistuje, aplikace pouzije defaulty v pameti.
 
 API klic nepatri do configu.
 
-Primarni varianta je environment variable:
+Primarni varianta jsou environment variables:
 
-`OPENAI_API_KEY`
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
 
-Volitelny fallback je soubor v projektu:
+Alternativa je systemovy keyring (`whisprgo auth ...`).
 
-`./.env`
+Priorita nacteni secretu:
 
-Aplikace umi i fallback:
-
-`~/.config/whisprgo/.env`
-
-Priklad:
-
-```bash
-cp configs/.env.example ./.env
-# potom uprav OPENAI_API_KEY v ./.env
-```
-
-Priorita nacteni:
-
-1. `OPENAI_API_KEY` z prostredi
-2. `OPENAI_API_KEY` z `./.env`
-3. `OPENAI_API_KEY` z `~/.config/whisprgo/.env`
+1. env promenna
+2. keyring
+3. chyba
 
 ## Commands
 
@@ -94,44 +86,42 @@ Priorita nacteni:
 - `whisprgo cancel`
 - `whisprgo transcribe /path/to/audio.wav`
 - `whisprgo config path`
-- `whisprgo config init [--force]`
 - `whisprgo config show`
 - `whisprgo config get <key>`
 - `whisprgo config set <key> <value>`
 - `whisprgo auth status`
-- `whisprgo auth set-openai-key`
-- `whisprgo auth clear-openai-key`
+- `whisprgo auth set openai`
+- `whisprgo auth set gemini`
+- `whisprgo auth delete openai`
+- `whisprgo auth delete gemini`
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
 
 Podporovane config keys pro `config get/set`:
 
-- `provider.transcription`
-- `provider.transcription_model`
+- `provider`
+- `transcription.model`
+- `transcription.language`
 - `cleanup.enabled`
-- `cleanup.provider`
 - `cleanup.model`
-- `cleanup.prompt`
-- `output.clipboard`
-- `output.paste`
-- `output.paste_delay_ms`
-- `audio.input`
-- `audio.format`
-- `audio.recorder`
+- `output.mode`
 
-Tip pro spolehlive paste pres hotkey:
+Minimalni priklad:
 
 ```yaml
+provider: openai
+transcription:
+  model: whisper-1
+  language: cs
+cleanup:
+  enabled: true
+  model: gpt-5-mini
 output:
-  clipboard: true
-  paste: true
-  paste_delay_ms: 250
-  paste_blocklist:
-    - config.yaml
-    - .env
+  mode: stdout
+security:
+  secrets_backend: keyring
+  allow_file_secrets: false
 ```
-
-Pokud je aktivni okno blokovane v `paste_blocklist`, text zustane v clipboardu, ale automaticky paste se neprovede.
 
 ## Development checks
 
