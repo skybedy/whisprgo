@@ -20,6 +20,16 @@ type OpenAICleaner struct {
 	client *http.Client
 }
 
+func NewOpenAICleaner(apiKey string, client *http.Client) (*OpenAICleaner, error) {
+	if strings.TrimSpace(apiKey) == "" {
+		return nil, errors.New("OPENAI_API_KEY is not set (env or keyring)")
+	}
+	if client == nil {
+		client = &http.Client{}
+	}
+	return &OpenAICleaner{apiKey: strings.TrimSpace(apiKey), client: client}, nil
+}
+
 func NewOpenAICleanerFromSecrets(client *http.Client) (*OpenAICleaner, error) {
 	apiKey := func() string {
 		v, _, err := secrets.Get("openai")
@@ -28,13 +38,7 @@ func NewOpenAICleanerFromSecrets(client *http.Client) (*OpenAICleaner, error) {
 		}
 		return v
 	}()
-	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is not set (env or keyring)")
-	}
-	if client == nil {
-		client = &http.Client{}
-	}
-	return &OpenAICleaner{apiKey: apiKey, client: client}, nil
+	return NewOpenAICleaner(apiKey, client)
 }
 
 func (c *OpenAICleaner) Clean(ctx context.Context, input string, model string, prompt string) (string, error) {

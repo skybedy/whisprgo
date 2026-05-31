@@ -18,6 +18,7 @@ type Config struct {
 }
 
 type TranscriptionConfig struct {
+	Provider       string `yaml:"provider"`
 	Model          string `yaml:"model"`
 	Language       string `yaml:"language"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
@@ -25,6 +26,7 @@ type TranscriptionConfig struct {
 
 type CleanupConfig struct {
 	Enabled        bool   `yaml:"enabled"`
+	Provider       string `yaml:"provider"`
 	Model          string `yaml:"model"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
 	Prompt         string `yaml:"prompt"`
@@ -77,7 +79,24 @@ func Load() (Config, error) {
 	}
 
 	ApplyEnvOverrides(&cfg)
+	normalizeProviders(&cfg)
 	return cfg, nil
+}
+
+func normalizeProviders(cfg *Config) {
+	if cfg == nil {
+		return
+	}
+	global := cfg.Provider
+	if global == "" {
+		global = "openai"
+	}
+	if cfg.Transcription.Provider == "" {
+		cfg.Transcription.Provider = global
+	}
+	if cfg.Cleanup.Provider == "" {
+		cfg.Cleanup.Provider = global
+	}
 }
 
 func Exists() bool {

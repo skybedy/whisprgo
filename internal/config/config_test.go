@@ -56,7 +56,39 @@ func TestLoadMergesWithDefaults(t *testing.T) {
 	if cfg.Transcription.Model != "whisper-1" {
 		t.Fatalf("expected transcription.model override, got %q", cfg.Transcription.Model)
 	}
+	if cfg.Transcription.Provider != "openai" {
+		t.Fatalf("expected transcription.provider fallback to openai, got %q", cfg.Transcription.Provider)
+	}
+	if cfg.Cleanup.Provider != "openai" {
+		t.Fatalf("expected cleanup.provider fallback to openai, got %q", cfg.Cleanup.Provider)
+	}
 	if cfg.Transcription.Language == "" {
 		t.Fatalf("expected default transcription.language to remain set")
+	}
+}
+
+func TestLoadRespectsSectionProviders(t *testing.T) {
+	xdg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	cfgPath := filepath.Join(xdg, "whisprgo", "config.yaml")
+	if err := os.MkdirAll(filepath.Dir(cfgPath), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+
+	content := []byte("provider: openai\ntranscription:\n  provider: mistral\ncleanup:\n  provider: openai\n")
+	if err := os.WriteFile(cfgPath, content, 0o644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	if cfg.Transcription.Provider != "mistral" {
+		t.Fatalf("expected transcription.provider override, got %q", cfg.Transcription.Provider)
+	}
+	if cfg.Cleanup.Provider != "openai" {
+		t.Fatalf("expected cleanup.provider explicit value, got %q", cfg.Cleanup.Provider)
 	}
 }

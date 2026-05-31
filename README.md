@@ -68,8 +68,11 @@ API klic nepatri do configu.
 
 Primarni varianta jsou environment variables:
 
+- `WHISPRGO_TRANSCRIPTION_API_KEY`
+- `WHISPRGO_CLEANUP_API_KEY`
 - `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
+- `MISTRAL_API_KEY`
 
 Alternativa je systemovy keyring (`whisprgo auth ...`).
 
@@ -90,10 +93,16 @@ Priorita nacteni secretu:
 - `whisprgo config get <key>`
 - `whisprgo config set <key> <value>`
 - `whisprgo auth status`
+- `whisprgo auth set transcription`
+- `whisprgo auth set cleanup`
 - `whisprgo auth set openai`
 - `whisprgo auth set gemini`
+- `whisprgo auth set mistral`
+- `whisprgo auth delete transcription`
+- `whisprgo auth delete cleanup`
 - `whisprgo auth delete openai`
 - `whisprgo auth delete gemini`
+- `whisprgo auth delete mistral`
 - `whisprgo doctor`
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
@@ -101,9 +110,11 @@ Priorita nacteni secretu:
 Podporovane config keys pro `config get/set`:
 
 - `provider`
+- `transcription.provider`
 - `transcription.model`
 - `transcription.language`
 - `cleanup.enabled`
+- `cleanup.provider`
 - `cleanup.model`
 - `cleanup.prompt`
 - `output.mode`
@@ -111,15 +122,23 @@ Podporovane config keys pro `config get/set`:
 - `output.copy_to_clipboard`
 - `output.paste_to_active_window`
 
+Podporovane hodnoty provideru:
+
+- `openai`
+- `mistral`
+- `gemini` (pripraveno pro secrets/auth)
+
 Minimalni priklad:
 
 ```yaml
 provider: openai
 transcription:
+  provider: openai
   model: whisper-1
   language: cs
 cleanup:
   enabled: false
+  provider: openai
   model: gpt-5-mini
   prompt: Oprav pouze preklepy...
 audio:

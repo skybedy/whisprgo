@@ -18,8 +18,24 @@ func (a *App) newAuthCommand() *cobra.Command {
 		Use:   "status",
 		Short: "Show secrets configuration status",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Fprintf(cmd.OutOrStdout(), "OpenAI: %s\n", secrets.Status("openai"))
-			fmt.Fprintf(cmd.OutOrStdout(), "Gemini: %s\n", secrets.Status("gemini"))
+			transcriptionProvider := strings.TrimSpace(a.cfg.Transcription.Provider)
+			if transcriptionProvider == "" {
+				transcriptionProvider = strings.TrimSpace(a.cfg.Provider)
+			}
+			if transcriptionProvider == "" {
+				transcriptionProvider = "openai"
+			}
+
+			cleanupProvider := strings.TrimSpace(a.cfg.Cleanup.Provider)
+			if cleanupProvider == "" {
+				cleanupProvider = strings.TrimSpace(a.cfg.Provider)
+			}
+			if cleanupProvider == "" {
+				cleanupProvider = "openai"
+			}
+
+			fmt.Fprintf(cmd.OutOrStdout(), "Transcription (%s): %s\n", transcriptionProvider, secrets.StatusForRole("transcription", transcriptionProvider))
+			fmt.Fprintf(cmd.OutOrStdout(), "Cleanup (%s): %s\n", cleanupProvider, secrets.StatusForRole("cleanup", cleanupProvider))
 		},
 	})
 
@@ -29,8 +45,8 @@ func (a *App) newAuthCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			provider := strings.ToLower(strings.TrimSpace(args[0]))
-			if provider != "openai" && provider != "gemini" {
-				return fmt.Errorf("supported providers: openai, gemini")
+			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "transcription" && provider != "cleanup" {
+				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral")
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Enter %s API key: ", strings.ToUpper(provider))
 			key, err := readHiddenInput()
@@ -41,8 +57,14 @@ func (a *App) newAuthCommand() *cobra.Command {
 			if strings.TrimSpace(key) == "" {
 				return fmt.Errorf("key cannot be empty")
 			}
-			if err := secrets.Set(provider, key); err != nil {
-				return err
+			if provider == "transcription" || provider == "cleanup" {
+				if err := secrets.SetRole(provider, key); err != nil {
+					return err
+				}
+			} else {
+				if err := secrets.Set(provider, key); err != nil {
+					return err
+				}
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%s key stored in keyring\n", strings.Title(provider))
 			return nil
@@ -55,11 +77,17 @@ func (a *App) newAuthCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			provider := strings.ToLower(strings.TrimSpace(args[0]))
-			if provider != "openai" && provider != "gemini" {
-				return fmt.Errorf("supported providers: openai, gemini")
+			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "transcription" && provider != "cleanup" {
+				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral")
 			}
-			if err := secrets.Delete(provider); err != nil {
-				return err
+			if provider == "transcription" || provider == "cleanup" {
+				if err := secrets.DeleteRole(provider); err != nil {
+					return err
+				}
+			} else {
+				if err := secrets.Delete(provider); err != nil {
+					return err
+				}
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%s key deleted from keyring\n", strings.Title(provider))
 			return nil

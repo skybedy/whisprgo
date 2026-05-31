@@ -15,22 +15,32 @@ import (
 
 func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, error) {
 	a.logInfof(nil, "transcribe: start audio=%s", audioPath)
-	if strings.TrimSpace(a.cfg.Provider) != "openai" {
-		return "", fmt.Errorf("unsupported transcription provider: %s", a.cfg.Provider)
+	transcriptionProvider := strings.TrimSpace(a.cfg.Transcription.Provider)
+	if transcriptionProvider == "" {
+		transcriptionProvider = strings.TrimSpace(a.cfg.Provider)
 	}
 
 	model := strings.TrimSpace(a.cfg.Transcription.Model)
 	if model == "" {
 		return "", fmt.Errorf("transcription.model is empty")
 	}
-	a.logInfof(nil, "transcribe: provider=%s model=%s", a.cfg.Provider, model)
-	if src, err := secrets.SourceFor("openai"); err == nil {
+	a.logInfof(nil, "transcribe: provider=%s model=%s", transcriptionProvider, model)
+	transcriptionAPIKey, src, err := secrets.GetForRole("transcription", transcriptionProvider)
+	if err == nil {
 		a.logInfof(nil, "transcribe: secret_source=%s", src)
 	} else {
 		a.logErrorf(nil, "transcribe: secret_source_unavailable reason=%v", err)
 	}
 
-	provider, err := transcription.NewOpenAIProviderFromSecrets(nil)
+	var provider transcription.Provider
+	switch transcriptionProvider {
+	case "openai":
+		provider, err = transcription.NewOpenAIProvider(transcriptionAPIKey, nil)
+	case "mistral":
+		provider, err = transcription.NewMistralProvider(transcriptionAPIKey, nil)
+	default:
+		return "", fmt.Errorf("unsupported transcription provider: %s", transcriptionProvider)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -65,8 +75,19 @@ func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error
 	if prompt == "" {
 		return "", fmt.Errorf("cleanup.prompt is empty")
 	}
+	cleanupProvider := strings.TrimSpace(a.cfg.Cleanup.Provider)
+	if cleanupProvider == "" {
+		cleanupProvider = strings.TrimSpace(a.cfg.Provider)
+	}
+	if cleanupProvider != "openai" {
+		return "", fmt.Errorf("unsupported cleanup provider: %s", cleanupProvider)
+	}
+	cleanupAPIKey, _, err := secrets.GetForRole("cleanup", cleanupProvider)
+	if err != nil {
+		return "", err
+	}
 
-	cleaner, err := cleanup.NewOpenAICleanerFromSecrets(nil)
+	cleaner, err := cleanup.NewOpenAICleaner(cleanupAPIKey, nil)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +98,7 @@ func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error
 	}
 	reqCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	a.logInfof(nil, "cleanup: model=%s timeout=%s", model, timeout)
+	a.logInfof(nil, "cleanup: provider=%s model=%s timeout=%s", cleanupProvider, model, timeout)
 	out, err := cleaner.Clean(reqCtx, input, model, prompt)
 	if err != nil {
 		a.logErrorf(nil, "cleanup: failed err=%v", err)

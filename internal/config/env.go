@@ -14,6 +14,9 @@ func ApplyEnvOverrides(cfg *Config) {
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_PROVIDER")); v != "" {
 		cfg.Provider = v
 	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PROVIDER")); v != "" {
+		cfg.Transcription.Provider = v
+	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_MODEL")); v != "" {
 		cfg.Transcription.Model = v
 	}
@@ -22,6 +25,9 @@ func ApplyEnvOverrides(cfg *Config) {
 	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_CLEANUP_MODEL")); v != "" {
 		cfg.Cleanup.Model = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_CLEANUP_PROVIDER")); v != "" {
+		cfg.Cleanup.Provider = v
 	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_OUTPUT_MODE")); v != "" {
 		cfg.Output.Mode = v

@@ -28,6 +28,7 @@ type configKeySpec struct {
 func allowedConfigKeys() map[string]configKeySpec {
 	return map[string]configKeySpec{
 		"provider":               {valueType: configTypeString, get: func(c config.Config) string { return c.Provider }, set: func(c *config.Config, v string) error { c.Provider = v; return nil }},
+		"transcription.provider": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Provider }, set: func(c *config.Config, v string) error { c.Transcription.Provider = v; return nil }},
 		"transcription.model":    {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Model }, set: func(c *config.Config, v string) error { c.Transcription.Model = v; return nil }},
 		"transcription.language": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Language }, set: func(c *config.Config, v string) error { c.Transcription.Language = v; return nil }},
 		"cleanup.enabled": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Cleanup.Enabled) }, set: func(c *config.Config, v string) error {
@@ -39,6 +40,10 @@ func allowedConfigKeys() map[string]configKeySpec {
 			return nil
 		}},
 		"cleanup.model": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Model }, set: func(c *config.Config, v string) error { c.Cleanup.Model = v; return nil }},
+		"cleanup.provider": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Provider }, set: func(c *config.Config, v string) error {
+			c.Cleanup.Provider = v
+			return nil
+		}},
 		"cleanup.prompt": {valueType: configTypeString, get: func(c config.Config) string { return c.Cleanup.Prompt }, set: func(c *config.Config, v string) error {
 			c.Cleanup.Prompt = v
 			return nil

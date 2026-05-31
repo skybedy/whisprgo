@@ -23,6 +23,16 @@ type OpenAIProvider struct {
 	client *http.Client
 }
 
+func NewOpenAIProvider(apiKey string, client *http.Client) (*OpenAIProvider, error) {
+	if strings.TrimSpace(apiKey) == "" {
+		return nil, errors.New("OPENAI_API_KEY is not set (env or keyring)")
+	}
+	if client == nil {
+		client = &http.Client{}
+	}
+	return &OpenAIProvider{apiKey: strings.TrimSpace(apiKey), client: client}, nil
+}
+
 func NewOpenAIProviderFromSecrets(client *http.Client) (*OpenAIProvider, error) {
 	apiKey := func() string {
 		v, _, err := secrets.Get("openai")
@@ -31,15 +41,7 @@ func NewOpenAIProviderFromSecrets(client *http.Client) (*OpenAIProvider, error) 
 		}
 		return v
 	}()
-	if apiKey == "" {
-		return nil, errors.New("OPENAI_API_KEY is not set (env or keyring)")
-	}
-
-	if client == nil {
-		client = &http.Client{}
-	}
-
-	return &OpenAIProvider{apiKey: apiKey, client: client}, nil
+	return NewOpenAIProvider(apiKey, client)
 }
 
 func (p *OpenAIProvider) Transcribe(ctx context.Context, audioPath string, model string) (string, error) {
