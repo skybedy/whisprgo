@@ -7,10 +7,11 @@ func Default() Config {
 			Provider:       "openai",
 			Model:          "whisper-1",
 			Language:       "cs",
+			SherpaWSURL:    "ws://127.0.0.1:6006",
 			TimeoutSeconds: 120,
 		},
 		Cleanup: CleanupConfig{
-			Enabled:        true,
+			Enabled:        false,
 			Provider:       "openai",
 			Model:          "gpt-5-mini",
 			TimeoutSeconds: 120,

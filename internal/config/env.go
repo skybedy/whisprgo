@@ -23,6 +23,9 @@ func ApplyEnvOverrides(cfg *Config) {
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_LANGUAGE")); v != "" {
 		cfg.Transcription.Language = v
 	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_SHERPA_WS_URL")); v != "" {
+		cfg.Transcription.SherpaWSURL = v
+	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_CLEANUP_MODEL")); v != "" {
 		cfg.Cleanup.Model = v
 	}

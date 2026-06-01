@@ -8,6 +8,7 @@ func TestApplyEnvOverrides(t *testing.T) {
 	t.Setenv("WHISPRGO_TRANSCRIPTION_PROVIDER", "openai")
 	t.Setenv("WHISPRGO_TRANSCRIPTION_MODEL", "whisper-1")
 	t.Setenv("WHISPRGO_TRANSCRIPTION_LANGUAGE", "en")
+	t.Setenv("WHISPRGO_TRANSCRIPTION_SHERPA_WS_URL", "ws://127.0.0.1:7000")
 	t.Setenv("WHISPRGO_CLEANUP_ENABLED", "false")
 	t.Setenv("WHISPRGO_CLEANUP_PROVIDER", "openai")
 	t.Setenv("WHISPRGO_CLEANUP_MODEL", "gpt-5-mini")
@@ -22,6 +23,9 @@ func TestApplyEnvOverrides(t *testing.T) {
 	}
 	if cfg.Transcription.Provider != "openai" {
 		t.Fatalf("expected transcription.provider override")
+	}
+	if cfg.Transcription.SherpaWSURL != "ws://127.0.0.1:7000" {
+		t.Fatalf("expected transcription.sherpa_ws_url override")
 	}
 	if cfg.Cleanup.Enabled != false {
 		t.Fatalf("expected cleanup.enabled override")

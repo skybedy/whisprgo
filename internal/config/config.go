@@ -22,6 +22,7 @@ type TranscriptionConfig struct {
 	Provider       string `yaml:"provider"`
 	Model          string `yaml:"model"`
 	Language       string `yaml:"language"`
+	SherpaWSURL    string `yaml:"sherpa_ws_url"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -45,8 +46,18 @@ func (a *App) newDoctorCommand() *cobra.Command {
 			_, notifyErr := exec.LookPath("notify-send")
 			printCheck("notify-send", notifyErr == nil, "desktop recording notifications")
 
-			_, _, openAIErr := secrets.Get("openai")
-			printCheck("OPENAI_API_KEY", openAIErr == nil, "env or keyring")
+			transcriptionProvider := strings.TrimSpace(a.cfg.Transcription.Provider)
+			if transcriptionProvider == "" {
+				transcriptionProvider = strings.TrimSpace(a.cfg.Provider)
+			}
+			switch transcriptionProvider {
+			case "parakeet":
+				wsURL := strings.TrimSpace(a.cfg.Transcription.SherpaWSURL)
+				printCheck("sherpa_ws_url", wsURL != "", "websocket endpoint for local transcription")
+			default:
+				_, _, providerErr := secrets.GetForRole("transcription", transcriptionProvider)
+				printCheck(strings.ToUpper(transcriptionProvider)+"_API_KEY", providerErr == nil, "env or keyring")
+			}
 
 			cfgPath := config.Path()
 			if _, err := os.Stat(cfgPath); err == nil {

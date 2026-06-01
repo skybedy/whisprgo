@@ -116,6 +116,7 @@ Podporovane config keys pro `config get/set`:
 - `transcription.provider`
 - `transcription.model`
 - `transcription.language`
+- `transcription.sherpa_ws_url`
 - `cleanup.enabled`
 - `cleanup.provider`
 - `cleanup.model`
@@ -131,6 +132,7 @@ Podporovane hodnoty provideru:
 
 - `openai`
 - `mistral`
+- `parakeet` (lokalni `sherpa-onnx` websocket backend)
 - `gemini` (cleanup provider)
 - `deepseek` (cleanup provider)
 
@@ -142,6 +144,7 @@ transcription:
   provider: openai
   model: whisper-1
   language: cs
+  sherpa_ws_url: ws://127.0.0.1:6006
 cleanup:
   enabled: false
   provider: openai

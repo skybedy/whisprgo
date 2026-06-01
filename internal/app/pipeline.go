@@ -25,11 +25,18 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		return "", fmt.Errorf("transcription.model is empty")
 	}
 	a.logInfof(nil, "transcribe: provider=%s model=%s", transcriptionProvider, model)
-	transcriptionAPIKey, src, err := secrets.GetForRole("transcription", transcriptionProvider)
-	if err == nil {
-		a.logInfof(nil, "transcribe: secret_source=%s", src)
-	} else {
-		a.logErrorf(nil, "transcribe: secret_source_unavailable reason=%v", err)
+	var (
+		transcriptionAPIKey string
+		err                 error
+	)
+	if transcriptionProvider != "parakeet" {
+		var src secrets.Source
+		transcriptionAPIKey, src, err = secrets.GetForRole("transcription", transcriptionProvider)
+		if err == nil {
+			a.logInfof(nil, "transcribe: secret_source=%s", src)
+		} else {
+			a.logErrorf(nil, "transcribe: secret_source_unavailable reason=%v", err)
+		}
 	}
 
 	var provider transcription.Provider
@@ -38,6 +45,8 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		provider, err = transcription.NewOpenAIProvider(transcriptionAPIKey, nil)
 	case "mistral":
 		provider, err = transcription.NewMistralProvider(transcriptionAPIKey, nil)
+	case "parakeet":
+		provider, err = transcription.NewParakeetWSProvider(a.cfg.Transcription.SherpaWSURL, a.cfg.Transcription.Language)
 	default:
 		return "", fmt.Errorf("unsupported transcription provider: %s", transcriptionProvider)
 	}

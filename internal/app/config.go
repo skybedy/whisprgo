@@ -31,6 +31,10 @@ func allowedConfigKeys() map[string]configKeySpec {
 		"transcription.provider": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Provider }, set: func(c *config.Config, v string) error { c.Transcription.Provider = v; return nil }},
 		"transcription.model":    {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Model }, set: func(c *config.Config, v string) error { c.Transcription.Model = v; return nil }},
 		"transcription.language": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Language }, set: func(c *config.Config, v string) error { c.Transcription.Language = v; return nil }},
+		"transcription.sherpa_ws_url": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.SherpaWSURL }, set: func(c *config.Config, v string) error {
+			c.Transcription.SherpaWSURL = v
+			return nil
+		}},
 		"cleanup.enabled": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Cleanup.Enabled) }, set: func(c *config.Config, v string) error {
 			b, err := strconv.ParseBool(v)
 			if err != nil {
