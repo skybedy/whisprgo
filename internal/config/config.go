@@ -14,6 +14,7 @@ type Config struct {
 	Cleanup       CleanupConfig       `yaml:"cleanup"`
 	Audio         AudioConfig         `yaml:"audio"`
 	Output        OutputConfig        `yaml:"output"`
+	Logging       LoggingConfig       `yaml:"logging"`
 	Security      SecurityConfig      `yaml:"security"`
 }
 
@@ -49,6 +50,10 @@ type OutputConfig struct {
 type SecurityConfig struct {
 	SecretsBackend   string `yaml:"secrets_backend"`
 	AllowFileSecrets bool   `yaml:"allow_file_secrets"`
+}
+
+type LoggingConfig struct {
+	IncludeText bool `yaml:"include_text"`
 }
 
 func Path() string {

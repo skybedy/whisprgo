@@ -37,4 +37,9 @@ func ApplyEnvOverrides(cfg *Config) {
 			cfg.Cleanup.Enabled = b
 		}
 	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_LOGGING_INCLUDE_TEXT")); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			cfg.Logging.IncludeText = b
+		}
+	}
 }

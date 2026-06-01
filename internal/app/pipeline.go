@@ -58,6 +58,9 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		return "", err
 	}
 	a.logInfof(nil, "transcribe: done chars=%d", len(text))
+	if a.cfg.Logging.IncludeText {
+		a.logInfof(nil, "transcribe: text=%q", text)
+	}
 	return text, nil
 }
 
@@ -79,15 +82,20 @@ func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error
 	if cleanupProvider == "" {
 		cleanupProvider = strings.TrimSpace(a.cfg.Provider)
 	}
-	if cleanupProvider != "openai" {
-		return "", fmt.Errorf("unsupported cleanup provider: %s", cleanupProvider)
-	}
 	cleanupAPIKey, _, err := secrets.GetForRole("cleanup", cleanupProvider)
 	if err != nil {
 		return "", err
 	}
 
-	cleaner, err := cleanup.NewOpenAICleaner(cleanupAPIKey, nil)
+	var cleaner cleanup.Cleaner
+	switch cleanupProvider {
+	case "openai":
+		cleaner, err = cleanup.NewOpenAICleaner(cleanupAPIKey, nil)
+	case "gemini":
+		cleaner, err = cleanup.NewGeminiCleaner(cleanupAPIKey, nil)
+	default:
+		return "", fmt.Errorf("unsupported cleanup provider: %s", cleanupProvider)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -105,6 +113,9 @@ func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error
 		return "", err
 	}
 	a.logInfof(nil, "cleanup: done output_chars=%d", len(out))
+	if a.cfg.Logging.IncludeText {
+		a.logInfof(nil, "cleanup: text=%q", out)
+	}
 	return out, nil
 }
 

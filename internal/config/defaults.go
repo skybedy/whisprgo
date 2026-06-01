@@ -28,6 +28,9 @@ func Default() Config {
 			CopyToClipboard:     false,
 			PasteToActiveWindow: false,
 		},
+		Logging: LoggingConfig{
+			IncludeText: false,
+		},
 		Security: SecurityConfig{
 			SecretsBackend:   "keyring",
 			AllowFileSecrets: false,

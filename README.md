@@ -121,12 +121,13 @@ Podporovane config keys pro `config get/set`:
 - `output.file_path`
 - `output.copy_to_clipboard`
 - `output.paste_to_active_window`
+- `logging.include_text`
 
 Podporovane hodnoty provideru:
 
 - `openai`
 - `mistral`
-- `gemini` (pripraveno pro secrets/auth)
+- `gemini` (cleanup provider)
 
 Minimalni priklad:
 

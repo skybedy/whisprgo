@@ -12,6 +12,7 @@ func TestApplyEnvOverrides(t *testing.T) {
 	t.Setenv("WHISPRGO_CLEANUP_PROVIDER", "openai")
 	t.Setenv("WHISPRGO_CLEANUP_MODEL", "gpt-5-mini")
 	t.Setenv("WHISPRGO_OUTPUT_MODE", "clipboard")
+	t.Setenv("WHISPRGO_LOGGING_INCLUDE_TEXT", "true")
 
 	ApplyEnvOverrides(&cfg)
 
@@ -29,5 +30,8 @@ func TestApplyEnvOverrides(t *testing.T) {
 	}
 	if cfg.Output.Mode != "clipboard" {
 		t.Fatalf("expected output.mode override")
+	}
+	if cfg.Logging.IncludeText != true {
+		t.Fatalf("expected logging.include_text override")
 	}
 }

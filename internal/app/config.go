@@ -69,6 +69,14 @@ func allowedConfigKeys() map[string]configKeySpec {
 			c.Output.PasteToActiveWindow = b
 			return nil
 		}},
+		"logging.include_text": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Logging.IncludeText) }, set: func(c *config.Config, v string) error {
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				return fmt.Errorf("logging.include_text expects true/false")
+			}
+			c.Logging.IncludeText = b
+			return nil
+		}},
 	}
 }
 
