@@ -30,6 +30,7 @@ func Default() Config {
 		},
 		Logging: LoggingConfig{
 			IncludeText: false,
+			FilePath:    "",
 		},
 		Security: SecurityConfig{
 			SecretsBackend:   "keyring",

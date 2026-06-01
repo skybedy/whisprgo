@@ -54,6 +54,7 @@ type SecurityConfig struct {
 
 type LoggingConfig struct {
 	IncludeText bool `yaml:"include_text"`
+	FilePath    string `yaml:"file_path"`
 }
 
 func Path() string {

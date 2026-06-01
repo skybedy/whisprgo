@@ -122,6 +122,7 @@ Podporovane config keys pro `config get/set`:
 - `output.copy_to_clipboard`
 - `output.paste_to_active_window`
 - `logging.include_text`
+- `logging.file_path`
 
 Podporovane hodnoty provideru:
 

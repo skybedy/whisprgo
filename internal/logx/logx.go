@@ -17,6 +17,18 @@ type Logger struct {
 }
 
 func New() (*Logger, error) {
+	return NewWithPath("")
+}
+
+func NewWithPath(customPath string) (*Logger, error) {
+	if customPath != "" {
+		path := filepath.Clean(customPath)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return nil, fmt.Errorf("failed to create log directory: %w", err)
+		}
+		return &Logger{path: path}, nil
+	}
+
 	stateDir := os.Getenv("XDG_STATE_HOME")
 	if stateDir == "" {
 		home, homeErr := os.UserHomeDir()

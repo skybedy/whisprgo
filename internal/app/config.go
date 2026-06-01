@@ -77,6 +77,10 @@ func allowedConfigKeys() map[string]configKeySpec {
 			c.Logging.IncludeText = b
 			return nil
 		}},
+		"logging.file_path": {valueType: configTypeString, get: func(c config.Config) string { return c.Logging.FilePath }, set: func(c *config.Config, v string) error {
+			c.Logging.FilePath = v
+			return nil
+		}},
 	}
 }
 

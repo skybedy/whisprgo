@@ -42,4 +42,7 @@ func ApplyEnvOverrides(cfg *Config) {
 			cfg.Logging.IncludeText = b
 		}
 	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_LOG_FILE_PATH")); v != "" {
+		cfg.Logging.FilePath = v
+	}
 }

@@ -77,7 +77,8 @@ func (a *App) ensureLogger(stderr io.Writer) {
 		return
 	}
 
-	logger, err := logx.New()
+	customPath := a.cfg.Logging.FilePath
+	logger, err := logx.NewWithPath(customPath)
 	if err != nil {
 		if a.verbose {
 			fmt.Fprintf(stderr, "warning: failed to initialize logger: %v\n", err)

@@ -13,6 +13,7 @@ func TestApplyEnvOverrides(t *testing.T) {
 	t.Setenv("WHISPRGO_CLEANUP_MODEL", "gpt-5-mini")
 	t.Setenv("WHISPRGO_OUTPUT_MODE", "clipboard")
 	t.Setenv("WHISPRGO_LOGGING_INCLUDE_TEXT", "true")
+	t.Setenv("WHISPRGO_LOG_FILE_PATH", "/tmp/whisprgo.log")
 
 	ApplyEnvOverrides(&cfg)
 
@@ -33,5 +34,8 @@ func TestApplyEnvOverrides(t *testing.T) {
 	}
 	if cfg.Logging.IncludeText != true {
 		t.Fatalf("expected logging.include_text override")
+	}
+	if cfg.Logging.FilePath != "/tmp/whisprgo.log" {
+		t.Fatalf("expected logging.file_path override")
 	}
 }
