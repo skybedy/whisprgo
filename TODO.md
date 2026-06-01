@@ -58,6 +58,7 @@
 - [x] split secrets from config and use keyring + env priority
 - [x] add `auth set/delete <provider>` for OpenAI/Gemini
 - [x] block attempts to store secrets in `whisprgo config set ...`
+- [x] add DeepSeek secret/provider wiring (`DEEPSEEK_API_KEY`, `auth set/delete deepseek`)
 
 ## Reliability/Latency hardening
 
@@ -67,3 +68,10 @@
 - [x] prevent overlapping `toggle` cycles while transcription is running
 - [x] cleanup orphan ffmpeg recorders on new start
 - [x] honor `audio.sample_rate` and `audio.channels` in ffmpeg recorder
+
+## Next phase (Local transcription)
+
+- [ ] add local Parakeet transcription provider (no API key path)
+- [ ] reuse OpenWhispr-compatible `sherpa-onnx` websocket backend from Go
+- [ ] add doctor checks for local Parakeet binary/model files
+- [ ] keep cleanup optional; preserve fast raw-transcript path

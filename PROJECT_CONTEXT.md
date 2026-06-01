@@ -13,6 +13,9 @@
 - Projekt ma pripraveny zaklad pro release: `VERSION`, prikaz `whisprgo version`, smoke test a GitHub Actions CI/release workflow.
 - Konfigurace je v OS user config dir (`$XDG_CONFIG_HOME/whisprgo/config.yaml`, fallback `~/.config/whisprgo/config.yaml`) a je spravovatelna pres CLI (`config path/show/get/set`).
 - API keys jsou resene jako secrets: priorita je env (`OPENAI_API_KEY`, `GEMINI_API_KEY`) a fallback je systemovy keyring pres `auth status/set/delete`.
+- Cleanup provider ted podporuje i DeepSeek (`deepseek`) se secretem `DEEPSEEK_API_KEY`.
 - Recorder respektuje audio parametry z configu (`audio.input_device`, `audio.sample_rate`, `audio.channels`), standardne 16kHz mono.
 - Log path je stabilni: `~/.local/state/whisprgo/whisprgo.log`.
 - Pri zpracovani predchozi nahravky se dalsi `toggle` ignoruje, aby nevznikaly prekrivajici se recording/transcribe behy.
+- Aktualni produktove rozhodnuti: cleanup neni hlavni cesta, pro bezne diktovani je preferovany raw transcript.
+- Pro dalsi fazi je cil pridat lokalni transkripci pres Parakeet (OpenWhispr styl: `sherpa-onnx` websocket sidecar + ONNX modely), bez velkeho refaktoru.

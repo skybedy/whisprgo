@@ -19,3 +19,6 @@
 - Runtime log file path is fixed to `~/.local/state/whisprgo/whisprgo.log`.
 - Recorder uses configured audio format defaults (16kHz mono) to reduce upload size and latency.
 - `toggle` must not start a new recording while previous audio is still being transcribed.
+- Cleanup provider supports `openai`, `gemini`, and `deepseek`; transcription provider currently supports `openai` and `mistral`.
+- Current default operating mode for daily dictation is raw transcript (cleanup optional / non-primary).
+- Local NVIDIA/Parakeet direction will follow OpenWhispr architecture: local `sherpa-onnx` websocket backend with ONNX Parakeet models.

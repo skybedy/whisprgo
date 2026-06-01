@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- DeepSeek cleanup provider support (`cleanup.provider=deepseek`).
+- DeepSeek secret wiring via env/keyring (`DEEPSEEK_API_KEY`, `auth set/delete deepseek`).
+
 ### Changed
 - Config path moved to OS user config dir (`$XDG_CONFIG_HOME/whisprgo/config.yaml`, fallback `~/.config/whisprgo/config.yaml`).
 - Auth flow migrated to keyring-backed secrets with env priority (`OPENAI_API_KEY`, `GEMINI_API_KEY`).
