@@ -66,6 +66,16 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		a.logErrorf(nil, "transcribe: failed err=%v", err)
 		return "", err
 	}
+	if transcriptionProvider == "parakeet" && shouldRetryParakeetForCzech(a.cfg.Transcription.Language, text) {
+		a.logInfof(nil, "transcribe: parakeet retry triggered for language=%s", a.cfg.Transcription.Language)
+		retryText, retryErr := provider.Transcribe(reqCtx, audioPath, model)
+		if retryErr != nil {
+			a.logErrorf(nil, "transcribe: parakeet retry failed err=%v", retryErr)
+		} else {
+			text = retryText
+			a.logInfof(nil, "transcribe: parakeet retry completed chars=%d", len(text))
+		}
+	}
 	a.logInfof(nil, "transcribe: done chars=%d", len(text))
 	if a.cfg.Logging.IncludeText {
 		a.logInfof(nil, "transcribe: text=%q", text)

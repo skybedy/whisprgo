@@ -125,10 +125,27 @@ func (r *FFmpegRecorder) Stop(pid int) error {
 
 func (r *FFmpegRecorder) WaitForFile(audioPath string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
+	var (
+		lastSize     int64 = -1
+		stableRounds int
+	)
 	for {
 		info, err := os.Stat(audioPath)
-		if err == nil && info.Size() > 0 {
-			return nil
+		if err == nil {
+			size := info.Size()
+			// WAV header is 44 bytes. We also require size stability to avoid
+			// reading a partially flushed file right after SIGTERM.
+			if size > 44 {
+				if size == lastSize {
+					stableRounds++
+				} else {
+					stableRounds = 0
+					lastSize = size
+				}
+				if stableRounds >= 3 {
+					return nil
+				}
+			}
 		}
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("failed to inspect audio file: %w", err)
