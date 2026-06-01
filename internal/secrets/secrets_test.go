@@ -11,6 +11,7 @@ func TestProviderSpecSupportsMultipleProviders(t *testing.T) {
 		{provider: "openai", wantEnv: OpenAIEnvKey, wantSecret: OpenAISecretKey},
 		{provider: "gemini", wantEnv: GeminiEnvKey, wantSecret: GeminiSecretKey},
 		{provider: "mistral", wantEnv: MistralEnvKey, wantSecret: MistralSecretKey},
+		{provider: "deepseek", wantEnv: DeepSeekEnvKey, wantSecret: DeepSeekSecretKey},
 	}
 
 	for _, tc := range cases {

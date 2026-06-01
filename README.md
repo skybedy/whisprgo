@@ -73,6 +73,7 @@ Primarni varianta jsou environment variables:
 - `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
 - `MISTRAL_API_KEY`
+- `DEEPSEEK_API_KEY`
 
 Alternativa je systemovy keyring (`whisprgo auth ...`).
 
@@ -98,11 +99,13 @@ Priorita nacteni secretu:
 - `whisprgo auth set openai`
 - `whisprgo auth set gemini`
 - `whisprgo auth set mistral`
+- `whisprgo auth set deepseek`
 - `whisprgo auth delete transcription`
 - `whisprgo auth delete cleanup`
 - `whisprgo auth delete openai`
 - `whisprgo auth delete gemini`
 - `whisprgo auth delete mistral`
+- `whisprgo auth delete deepseek`
 - `whisprgo doctor`
 - `whisprgo version`
 - Global flag: `--verbose` (diagnosticke logy na stderr)
@@ -129,6 +132,7 @@ Podporovane hodnoty provideru:
 - `openai`
 - `mistral`
 - `gemini` (cleanup provider)
+- `deepseek` (cleanup provider)
 
 Minimalni priklad:
 

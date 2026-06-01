@@ -93,6 +93,8 @@ func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error
 		cleaner, err = cleanup.NewOpenAICleaner(cleanupAPIKey, nil)
 	case "gemini":
 		cleaner, err = cleanup.NewGeminiCleaner(cleanupAPIKey, nil)
+	case "deepseek":
+		cleaner, err = cleanup.NewDeepSeekCleaner(cleanupAPIKey, nil)
 	default:
 		return "", fmt.Errorf("unsupported cleanup provider: %s", cleanupProvider)
 	}

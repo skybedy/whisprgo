@@ -15,12 +15,14 @@ const (
 	OpenAIEnvKey        = "OPENAI_API_KEY"
 	GeminiEnvKey        = "GEMINI_API_KEY"
 	MistralEnvKey       = "MISTRAL_API_KEY"
+	DeepSeekEnvKey      = "DEEPSEEK_API_KEY"
 	TranscriptionEnvKey = "WHISPRGO_TRANSCRIPTION_API_KEY"
 	CleanupEnvKey       = "WHISPRGO_CLEANUP_API_KEY"
 
 	OpenAISecretKey        = "provider.openai.api_key"
 	GeminiSecretKey        = "provider.gemini.api_key"
 	MistralSecretKey       = "provider.mistral.api_key"
+	DeepSeekSecretKey      = "provider.deepseek.api_key"
 	TranscriptionSecretKey = "role.transcription.api_key"
 	CleanupSecretKey       = "role.cleanup.api_key"
 )
@@ -40,6 +42,8 @@ func providerSpec(provider string) (string, string, error) {
 		return GeminiEnvKey, GeminiSecretKey, nil
 	case "mistral":
 		return MistralEnvKey, MistralSecretKey, nil
+	case "deepseek":
+		return DeepSeekEnvKey, DeepSeekSecretKey, nil
 	default:
 		return "", "", fmt.Errorf("unsupported provider: %s", provider)
 	}

@@ -45,8 +45,8 @@ func (a *App) newAuthCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			provider := strings.ToLower(strings.TrimSpace(args[0]))
-			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "transcription" && provider != "cleanup" {
-				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral")
+			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "deepseek" && provider != "transcription" && provider != "cleanup" {
+				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral, deepseek")
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Enter %s API key: ", strings.ToUpper(provider))
 			key, err := readHiddenInput()
@@ -77,8 +77,8 @@ func (a *App) newAuthCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			provider := strings.ToLower(strings.TrimSpace(args[0]))
-			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "transcription" && provider != "cleanup" {
-				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral")
+			if provider != "openai" && provider != "gemini" && provider != "mistral" && provider != "deepseek" && provider != "transcription" && provider != "cleanup" {
+				return fmt.Errorf("supported targets: transcription, cleanup, openai, gemini, mistral, deepseek")
 			}
 			if provider == "transcription" || provider == "cleanup" {
 				if err := secrets.DeleteRole(provider); err != nil {
