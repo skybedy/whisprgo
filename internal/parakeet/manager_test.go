@@ -42,6 +42,18 @@ func TestCheckExternalEndpoint(t *testing.T) {
 	}
 }
 
+func TestShouldIgnoreParakeetLogLine(t *testing.T) {
+	if !shouldIgnoreParakeetLogLine("parakeet stdout", "[2026-06-02 13:15:12] [error] handle_read_frame error: websocketpp.transport:7 (End of File)") {
+		t.Fatalf("expected EOF shutdown noise to be ignored")
+	}
+	if shouldIgnoreParakeetLogLine("parakeet stderr", "[2026-06-02 13:15:12] [error] handle_read_frame error: websocketpp.transport:7 (End of File)") {
+		t.Fatalf("stderr lines should not be ignored")
+	}
+	if shouldIgnoreParakeetLogLine("parakeet stdout", "[2026-06-02 13:15:12] [error] something else") {
+		t.Fatalf("unexpected ignore for unrelated line")
+	}
+}
+
 func validManagedConfig(t *testing.T) config.ParakeetConfig {
 	t.Helper()
 	dir := t.TempDir()
