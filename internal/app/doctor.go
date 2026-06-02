@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"whisprgo/internal/config"
+	"whisprgo/internal/control"
 	"whisprgo/internal/parakeet"
 	"whisprgo/internal/secrets"
 )
@@ -82,8 +83,15 @@ func (a *App) newDoctorCommand() *cobra.Command {
 						}
 						printCheck(name, fileExists(path), path)
 					}
+				case "serve":
+					err := parakeet.ValidateManagedConfig(a.cfg.Transcription.Parakeet)
+					printCheck("parakeet serve", err == nil, "serve mode keeps local backend loaded for fast dictation")
+					printCheck("control socket", true, control.SocketPath())
+					printCheck("serve running", control.IsServeReachable(cmd.Context()), "start with: whisprgo serve")
+					printCheck("parakeet binary", fileExists(a.cfg.Transcription.Parakeet.Binary), a.cfg.Transcription.Parakeet.Binary)
+					printCheck("parakeet model_dir", dirExists(a.cfg.Transcription.Parakeet.ModelDir), a.cfg.Transcription.Parakeet.ModelDir)
 				default:
-					printCheck("parakeet.mode", false, "supported values: external, managed")
+					printCheck("parakeet.mode", false, "supported values: external, managed, serve")
 				}
 			default:
 				_, _, providerErr := secrets.GetForRole("transcription", transcriptionProvider)

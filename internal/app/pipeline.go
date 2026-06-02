@@ -156,6 +156,33 @@ func (a *App) transcribeWithParakeet(ctx context.Context, audioPath string, mode
 			a.logInfof(nil, "transcribe: text=%q", text)
 		}
 		return text, nil
+	case "serve":
+		if a.residentParakeet == nil {
+			return "", serveNotRunningError()
+		}
+		a.logInfof(nil, "transcription provider=parakeet mode=serve")
+		provider, err := transcription.NewParakeetWSProvider(a.residentParakeet.URL(), a.cfg.Transcription.Language)
+		if err != nil {
+			return "", err
+		}
+		timeout := time.Duration(a.cfg.Transcription.Parakeet.RequestTimeoutSeconds) * time.Second
+		if timeout <= 0 {
+			timeout = 120 * time.Second
+		}
+		reqCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+		startedAt := time.Now()
+		text, err := provider.Transcribe(reqCtx, audioPath, model)
+		if err != nil {
+			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			return "", err
+		}
+		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
+		a.logInfof(nil, "transcription completed duration=%s text_chars=%d", time.Since(startedAt), len(text))
+		if a.cfg.Logging.IncludeText {
+			a.logInfof(nil, "transcribe: text=%q", text)
+		}
+		return text, nil
 	default:
 		return "", fmt.Errorf("unsupported parakeet mode: %s", mode)
 	}

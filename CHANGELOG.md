@@ -7,6 +7,7 @@
 - DeepSeek secret wiring via env/keyring (`DEEPSEEK_API_KEY`, `auth set/delete deepseek`).
 - Local `parakeet` transcription provider via configurable `transcription.sherpa_ws_url` (OpenWhispr-style `sherpa-onnx` WebSocket backend, no hardcoded OpenWhispr paths).
 - Managed one-shot `parakeet` mode that starts `sherpa-onnx` WebSocket server per transcription and stops it afterward.
+- Foreground `whisprgo serve` mode with persistent `parakeet` backend and Unix socket control for `toggle/status/cancel`.
 
 ### Changed
 - Config path moved to OS user config dir (`$XDG_CONFIG_HOME/whisprgo/config.yaml`, fallback `~/.config/whisprgo/config.yaml`).
@@ -16,6 +17,7 @@
 - Recorder now respects configured audio capture params (`audio.sample_rate`, `audio.channels`) to reduce upload size and latency.
 - Cleanup is now default-disabled (`cleanup.enabled=false`) for faster raw-transcript-first dictation.
 - `doctor` now validates `parakeet` external endpoint reachability and managed binary/model prerequisites.
+- `doctor` now reports `serve` mode socket path and whether the local control service is running.
 
 ### Fixed
 - Transcription and cleanup response parsing now supports multiple OpenAI response shapes (`text`, `output_text`, `output[].content[].text`).

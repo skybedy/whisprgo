@@ -23,4 +23,5 @@
 - Current default operating mode for daily dictation is raw transcript (cleanup optional / non-primary).
 - Local NVIDIA/Parakeet direction will follow OpenWhispr architecture: local `sherpa-onnx` websocket backend with ONNX Parakeet models.
 - `parakeet` supports two modes: `external` (connect to existing websocket server) and `managed` (start one-shot websocket server for the current transcription and stop it afterward).
+- `parakeet` also supports `serve` mode, where `whisprgo serve` keeps the model loaded and `toggle/status/cancel` communicate over a local Unix socket.
 - Runtime code must not hardcode OpenWhispr install/cache paths; binary and model_dir are config-driven.

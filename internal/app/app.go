@@ -9,16 +9,19 @@ import (
 	"whisprgo/internal/config"
 	"whisprgo/internal/logx"
 	"whisprgo/internal/notifier"
+	"whisprgo/internal/parakeet"
 	"whisprgo/internal/recorder"
 )
 
 type App struct {
-	root     *cobra.Command
-	cfg      config.Config
-	recorder recorder.Recorder
-	notifier *notifier.Notifier
-	logger   *logx.Logger
-	verbose  bool
+	root             *cobra.Command
+	cfg              config.Config
+	recorder         recorder.Recorder
+	notifier         *notifier.Notifier
+	logger           *logx.Logger
+	verbose          bool
+	foregroundLogs   bool
+	residentParakeet *parakeet.ManagedServer
 }
 
 func New() (*App, error) {
@@ -70,6 +73,7 @@ func (a *App) registerCommands() {
 	a.root.AddCommand(a.newAuthCommand())
 	a.root.AddCommand(a.newVersionCommand())
 	a.root.AddCommand(a.newDoctorCommand())
+	a.root.AddCommand(a.newServeCommand())
 }
 
 func (a *App) ensureLogger(stderr io.Writer) {
@@ -93,7 +97,7 @@ func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Info(msg)
 	}
-	if a.verbose && stderr != nil {
+	if (a.verbose || a.foregroundLogs) && stderr != nil {
 		fmt.Fprintf(stderr, "info: %s\n", msg)
 	}
 }
@@ -103,7 +107,7 @@ func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Error(msg)
 	}
-	if a.verbose && stderr != nil {
+	if (a.verbose || a.foregroundLogs) && stderr != nil {
 		fmt.Fprintf(stderr, "error: %s\n", msg)
 	}
 }

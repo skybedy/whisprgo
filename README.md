@@ -86,6 +86,7 @@ Priorita nacteni secretu:
 ## Commands
 
 - `whisprgo toggle`
+- `whisprgo serve`
 - `whisprgo status`
 - `whisprgo cancel`
 - `whisprgo transcribe /path/to/audio.wav`
@@ -154,7 +155,7 @@ transcription:
   model: parakeet-tdt-0.6b-v3
   language: cs
   parakeet:
-    mode: managed
+    mode: serve
     binary: /path/to/sherpa-onnx-ws-linux-x64
     model_dir: /path/to/parakeet-tdt-0.6b-v3
     host: 127.0.0.1
@@ -219,7 +220,35 @@ whisprgo config set cleanup.prompt "Oprav pouze preklepy, interpunkci a zjevne c
 
 ## Parakeet modes
 
-Managed one-shot:
+Serve mode:
+
+```bash
+whisprgo config set transcription.provider parakeet
+whisprgo config set transcription.model parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.mode serve
+whisprgo config set transcription.parakeet.binary /path/to/sherpa-onnx-ws-linux-x64
+whisprgo config set transcription.parakeet.model_dir /path/to/parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.host 127.0.0.1
+whisprgo config set transcription.parakeet.port 6010
+whisprgo config set transcription.parakeet.num_threads 4
+whisprgo config set transcription.parakeet.startup_timeout_seconds 30
+whisprgo config set cleanup.enabled false
+whisprgo doctor
+whisprgo serve
+```
+
+External fallback:
+
+```bash
+whisprgo config set transcription.provider parakeet
+whisprgo config set transcription.model parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.mode external
+whisprgo config set transcription.parakeet.sherpa_ws_url ws://127.0.0.1:6010
+whisprgo config set cleanup.enabled false
+whisprgo doctor
+```
+
+Managed one-shot fallback:
 
 ```bash
 whisprgo config set transcription.provider parakeet
@@ -231,17 +260,6 @@ whisprgo config set transcription.parakeet.host 127.0.0.1
 whisprgo config set transcription.parakeet.port 6010
 whisprgo config set transcription.parakeet.num_threads 4
 whisprgo config set transcription.parakeet.startup_timeout_seconds 30
-whisprgo config set cleanup.enabled false
-whisprgo doctor
-```
-
-External fallback:
-
-```bash
-whisprgo config set transcription.provider parakeet
-whisprgo config set transcription.model parakeet-tdt-0.6b-v3
-whisprgo config set transcription.parakeet.mode external
-whisprgo config set transcription.parakeet.sherpa_ws_url ws://127.0.0.1:6010
 whisprgo config set cleanup.enabled false
 whisprgo doctor
 ```

@@ -23,3 +23,4 @@
 - Lokalni transkripce `parakeet` je navazana na konfigurovatelny `transcription.sherpa_ws_url` bez hardcoded OpenWhispr cest.
 - `parakeet` nově umi i managed one-shot rezim: `whisprgo` spusti `sherpa-onnx` WS server pro jednu transkripci, pocka na readiness, pouzije ho a zase ho ukonci.
 - External `sherpa_ws_url` rezim zustava zachovany jako fallback/dev varianta.
+- Novy smer pro rychle lokalni diktovani je `whisprgo serve`: foreground proces s persistentne nactenym `sherpa-onnx` backendem a ovladanim pres lokalni Unix socket.

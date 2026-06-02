@@ -75,4 +75,5 @@
 - [x] reuse OpenWhispr-compatible `sherpa-onnx` websocket backend from Go
 - [x] add doctor checks for local Parakeet binary/model files
 - [x] add managed one-shot Parakeet server mode
+- [x] add foreground `whisprgo serve` mode with persistent local backend
 - [ ] keep cleanup optional; preserve fast raw-transcript path

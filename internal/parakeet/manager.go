@@ -126,8 +126,8 @@ func (s *ManagedServer) Stop() error {
 
 func ValidateManagedConfig(cfg config.ParakeetConfig) error {
 	mode := strings.ToLower(strings.TrimSpace(cfg.Mode))
-	if mode != "managed" {
-		return fmt.Errorf("unsupported parakeet mode for managed validation: %s", cfg.Mode)
+	if mode != "managed" && mode != "serve" {
+		return fmt.Errorf("unsupported parakeet mode for local server validation: %s", cfg.Mode)
 	}
 	if strings.TrimSpace(cfg.Binary) == "" {
 		return errors.New("parakeet managed binary is empty")
