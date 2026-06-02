@@ -1,10 +1,15 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
+
+	"whisprgo/internal/transcription"
 )
 
 func (a *App) newTranscribeCommand() *cobra.Command {
@@ -26,17 +31,34 @@ func (a *App) newTranscribeCommand() *cobra.Command {
 				return fmt.Errorf("failed to access audio file: %w", err)
 			}
 
+			transcribeStart := time.Now()
 			text, err := a.transcribeAudio(cmd.Context(), audioPath)
 			if err != nil {
+				if errors.Is(err, transcription.ErrEmptyTranscript) {
+					a.logInfof(cmd.ErrOrStderr(), "transcription: no speech detected, skipping cleanup and output")
+					return nil
+				}
 				a.logErrorf(cmd.ErrOrStderr(), "transcribe failed audio=%s: %v", audioPath, err)
 				return err
 			}
+			transcribeDuration := time.Since(transcribeStart)
 
+			if strings.TrimSpace(text) == "" {
+				a.logInfof(cmd.ErrOrStderr(), "transcription returned empty text, skipping cleanup and output")
+				return nil
+			}
+
+			cleanupStart := time.Now()
 			cleaned, err := a.maybeCleanupText(cmd.Context(), text, forceCleanup)
+			cleanupDuration := time.Since(cleanupStart)
+			cleanupRan := err == nil && (a.cfg.Cleanup.Enabled || forceCleanup)
 			if err != nil {
 				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed, using raw transcription: %v", err)
 			} else {
 				text = cleaned
+			}
+			if cleanupRan {
+				a.logInfof(cmd.ErrOrStderr(), "pipeline: transcription=%s cleanup=%s total=%s", transcribeDuration.Round(time.Millisecond), cleanupDuration.Round(time.Millisecond), (transcribeDuration+cleanupDuration).Round(time.Millisecond))
 			}
 
 			if err := a.maybeOutputText(text); err != nil {

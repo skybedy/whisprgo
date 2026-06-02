@@ -2,12 +2,15 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"whisprgo/internal/state"
+	"whisprgo/internal/transcription"
 )
 
 type toggleResult struct {
@@ -139,18 +142,37 @@ func (a *App) performToggleLocal(ctx context.Context, errOut io.Writer, noTransc
 		}
 	}()
 
+	transcribeStart := time.Now()
 	text, err := a.transcribeAudio(ctx, s.AudioPath)
 	if err != nil {
+		if errors.Is(err, transcription.ErrEmptyTranscript) {
+			a.logInfof(errOut, "transcription: no speech detected, skipping cleanup and output")
+			a.notify("WhisprGo", "Nic nebylo rozpoznano.", "dialog-information", errOut)
+			return toggleResult{Message: "no speech detected"}, nil
+		}
 		a.logErrorf(errOut, "auto-transcribe failed audio=%s: %v", s.AudioPath, err)
 		a.notify("WhisprGo", "Prepis se nezdaril.", "dialog-error", errOut)
 		return toggleResult{}, fmt.Errorf("failed to transcribe %s: %w", s.AudioPath, err)
 	}
+	transcribeDuration := time.Since(transcribeStart)
 
+	if strings.TrimSpace(text) == "" {
+		a.logInfof(errOut, "transcription returned empty text, skipping cleanup and output")
+		a.notify("WhisprGo", "Nic nebylo rozpoznano.", "dialog-information", errOut)
+		return toggleResult{Message: "no speech detected"}, nil
+	}
+
+	cleanupStart := time.Now()
 	cleaned, err := a.maybeCleanupText(ctx, text, forceCleanup)
+	cleanupDuration := time.Since(cleanupStart)
+	cleanupRan := err == nil && (a.cfg.Cleanup.Enabled || forceCleanup)
 	if err != nil {
 		a.logErrorf(errOut, "cleanup failed, using raw transcription: %v", err)
 	} else {
 		text = cleaned
+	}
+	if cleanupRan {
+		a.logInfof(errOut, "pipeline: transcription=%s cleanup=%s total=%s", transcribeDuration.Round(time.Millisecond), cleanupDuration.Round(time.Millisecond), (transcribeDuration+cleanupDuration).Round(time.Millisecond))
 	}
 
 	if err := a.maybeOutputText(text); err != nil {

@@ -56,7 +56,7 @@ func (p *ParakeetWSProvider) Transcribe(ctx context.Context, audioPath string, m
 	}
 	text := extractSherpaText(msg)
 	if text == "" {
-		return "", errors.New("empty sherpa response")
+		return "", ErrEmptyTranscript
 	}
 	_ = conn.WriteMessage(websocket.TextMessage, []byte("Done"))
 	return text, nil
@@ -68,9 +68,7 @@ func extractSherpaText(msg []byte) string {
 	}
 	var r resp
 	if err := json.Unmarshal(msg, &r); err == nil {
-		if t := strings.TrimSpace(r.Text); t != "" {
-			return t
-		}
+		return strings.TrimSpace(r.Text)
 	}
 	return strings.TrimSpace(string(msg))
 }
