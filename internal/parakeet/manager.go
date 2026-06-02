@@ -229,10 +229,12 @@ func streamPipe(prefix string, r io.Reader, logf func(format string, args ...any
 }
 
 func shouldIgnoreParakeetLogLine(prefix string, line string) bool {
+	if strings.Contains(line, "[connect]") || strings.Contains(line, "[disconnect]") {
+		return true
+	}
 	if prefix != "parakeet stdout" {
 		return false
 	}
-
 	return strings.Contains(line, "handle_read_frame error: websocketpp.transport:7 (End of File)")
 }
 
