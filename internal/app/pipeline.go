@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -64,7 +65,11 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 	a.logInfof(nil, "transcribe: timeout=%s", timeout)
 	text, err := provider.Transcribe(reqCtx, audioPath, model)
 	if err != nil {
-		a.logErrorf(nil, "transcribe: failed err=%v", err)
+		if errors.Is(err, transcription.ErrEmptyTranscript) {
+			a.logInfof(nil, "transcribe: no speech detected")
+		} else {
+			a.logErrorf(nil, "transcribe: failed err=%v", err)
+		}
 		return "", err
 	}
 	a.logInfof(nil, "transcribe: done chars=%d", len(text))
@@ -103,7 +108,11 @@ func (a *App) transcribeWithParakeet(ctx context.Context, audioPath string, mode
 		startedAt := time.Now()
 		text, err := provider.Transcribe(reqCtx, audioPath, model)
 		if err != nil {
-			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			if errors.Is(err, transcription.ErrEmptyTranscript) {
+				a.logInfof(nil, "transcribe: no speech detected")
+			} else {
+				a.logErrorf(nil, "transcribe: failed err=%v", err)
+			}
 			return "", err
 		}
 		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
@@ -147,7 +156,11 @@ func (a *App) transcribeWithParakeet(ctx context.Context, audioPath string, mode
 		startedAt := time.Now()
 		text, err := provider.Transcribe(reqCtx, audioPath, model)
 		if err != nil {
-			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			if errors.Is(err, transcription.ErrEmptyTranscript) {
+				a.logInfof(nil, "transcribe: no speech detected")
+			} else {
+				a.logErrorf(nil, "transcribe: failed err=%v", err)
+			}
 			return "", err
 		}
 		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
@@ -174,7 +187,11 @@ func (a *App) transcribeWithParakeet(ctx context.Context, audioPath string, mode
 		startedAt := time.Now()
 		text, err := provider.Transcribe(reqCtx, audioPath, model)
 		if err != nil {
-			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			if errors.Is(err, transcription.ErrEmptyTranscript) {
+				a.logInfof(nil, "transcribe: no speech detected")
+			} else {
+				a.logErrorf(nil, "transcribe: failed err=%v", err)
+			}
 			return "", err
 		}
 		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
