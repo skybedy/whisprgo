@@ -13,25 +13,27 @@ import (
 
 func (a *App) newToggleCommand() *cobra.Command {
 	var noTranscribe bool
+	var forceCleanup bool
 
 	cmd := &cobra.Command{
 		Use:   "toggle",
 		Short: "Start or stop recording",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if a.shouldUseServeControl() {
-				return a.remoteToggle(cmd.Context(), cmd.OutOrStdout(), noTranscribe)
+				return a.remoteToggle(cmd.Context(), cmd.OutOrStdout(), noTranscribe, forceCleanup)
 			}
-			return a.handleToggleLocal(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr(), noTranscribe)
+			return a.handleToggleLocal(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr(), noTranscribe, forceCleanup)
 		},
 	}
 
 	cmd.Flags().BoolVar(&noTranscribe, "no-transcribe", false, "stop recording without automatic transcription")
+	cmd.Flags().BoolVar(&forceCleanup, "cleanup", false, "enable cleanup only for this run")
 	return cmd
 }
 
-func (a *App) remoteToggle(ctx context.Context, outWriter io.Writer, noTranscribe bool) error {
+func (a *App) remoteToggle(ctx context.Context, outWriter io.Writer, noTranscribe bool, forceCleanup bool) error {
 	a.logInfof(nil, "toggle delegated to serve")
-	resp, err := control.SendToggle(ctx, noTranscribe)
+	resp, err := control.SendToggle(ctx, noTranscribe, forceCleanup)
 	if err != nil {
 		if !a.isServeReachable(ctx) {
 			return serveNotRunningError()

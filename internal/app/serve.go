@@ -100,7 +100,8 @@ func (a *App) controlMux(stderr interface{ Write([]byte) (int, error) }) http.Ha
 			return
 		}
 		noTranscribe := r.URL.Query().Get("no_transcribe") == "true"
-		res, err := a.performToggleLocal(r.Context(), stderr, noTranscribe)
+		forceCleanup := r.URL.Query().Get("cleanup") == "true"
+		res, err := a.performToggleLocal(r.Context(), stderr, noTranscribe, forceCleanup)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

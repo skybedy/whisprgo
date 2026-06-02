@@ -8,7 +8,9 @@ import (
 )
 
 func (a *App) newTranscribeCommand() *cobra.Command {
-	return &cobra.Command{
+	var forceCleanup bool
+
+	cmd := &cobra.Command{
 		Use:   "transcribe /path/to/audio.wav",
 		Short: "Transcribe an existing audio file",
 		Args:  cobra.ExactArgs(1),
@@ -30,7 +32,7 @@ func (a *App) newTranscribeCommand() *cobra.Command {
 				return err
 			}
 
-			cleaned, err := a.maybeCleanupText(cmd.Context(), text)
+			cleaned, err := a.maybeCleanupText(cmd.Context(), text, forceCleanup)
 			if err != nil {
 				a.logErrorf(cmd.ErrOrStderr(), "cleanup failed, using raw transcription: %v", err)
 			} else {
@@ -47,4 +49,7 @@ func (a *App) newTranscribeCommand() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().BoolVar(&forceCleanup, "cleanup", false, "enable cleanup only for this run")
+	return cmd
 }

@@ -23,8 +23,8 @@ type statusResult struct {
 	Started   string
 }
 
-func (a *App) handleToggleLocal(ctx context.Context, out io.Writer, errOut io.Writer, noTranscribe bool) error {
-	res, err := a.performToggleLocal(ctx, errOut, noTranscribe)
+func (a *App) handleToggleLocal(ctx context.Context, out io.Writer, errOut io.Writer, noTranscribe bool, forceCleanup bool) error {
+	res, err := a.performToggleLocal(ctx, errOut, noTranscribe, forceCleanup)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (a *App) handleToggleLocal(ctx context.Context, out io.Writer, errOut io.Wr
 	return nil
 }
 
-func (a *App) performToggleLocal(ctx context.Context, errOut io.Writer, noTranscribe bool) (toggleResult, error) {
+func (a *App) performToggleLocal(ctx context.Context, errOut io.Writer, noTranscribe bool, forceCleanup bool) (toggleResult, error) {
 	a.logInfof(errOut, "toggle invoked")
 	if !state.Exists() {
 		if err := a.recorder.CleanupOrphans(); err != nil {
@@ -146,7 +146,7 @@ func (a *App) performToggleLocal(ctx context.Context, errOut io.Writer, noTransc
 		return toggleResult{}, fmt.Errorf("failed to transcribe %s: %w", s.AudioPath, err)
 	}
 
-	cleaned, err := a.maybeCleanupText(ctx, text)
+	cleaned, err := a.maybeCleanupText(ctx, text, forceCleanup)
 	if err != nil {
 		a.logErrorf(errOut, "cleanup failed, using raw transcription: %v", err)
 	} else {

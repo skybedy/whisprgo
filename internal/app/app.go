@@ -93,7 +93,7 @@ func (a *App) ensureLogger(stderr io.Writer) {
 }
 
 func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
-	msg := fmt.Sprintf(format, args...)
+	msg := SanitizeText(fmt.Sprintf(format, args...))
 	if a.logger != nil {
 		a.logger.Info(msg)
 	}
@@ -103,7 +103,7 @@ func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
 }
 
 func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
-	msg := fmt.Sprintf(format, args...)
+	msg := SanitizeText(fmt.Sprintf(format, args...))
 	if a.logger != nil {
 		a.logger.Error(msg)
 	}

@@ -218,10 +218,13 @@ func (l parakeetAppLogger) Errorf(format string, args ...any) {
 	}
 }
 
-func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error) {
-	if !a.cfg.Cleanup.Enabled {
+func (a *App) maybeCleanupText(ctx context.Context, input string, forceCleanup bool) (string, error) {
+	if !a.cfg.Cleanup.Enabled && !forceCleanup {
 		a.logInfof(nil, "cleanup: disabled")
 		return input, nil
+	}
+	if forceCleanup && !a.cfg.Cleanup.Enabled {
+		a.logInfof(nil, "cleanup: enabled via runtime flag")
 	}
 	a.logInfof(nil, "cleanup: enabled input_chars=%d", len(input))
 	model := strings.TrimSpace(a.cfg.Cleanup.Model)

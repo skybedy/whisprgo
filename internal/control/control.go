@@ -44,9 +44,9 @@ func ListenUnix() (net.Listener, error) {
 	return net.Listen("unix", SocketPath())
 }
 
-func Client() *http.Client {
+func Client(timeout time.Duration) *http.Client {
 	return &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: timeout,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 				var d net.Dialer
@@ -58,7 +58,7 @@ func Client() *http.Client {
 
 func IsServeReachable(ctx context.Context) bool {
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "http://unix/health", nil)
-	resp, err := Client().Do(req)
+	resp, err := Client(time.Second).Do(req)
 	if err != nil {
 		return false
 	}
@@ -66,10 +66,17 @@ func IsServeReachable(ctx context.Context) bool {
 	return resp.StatusCode == http.StatusOK
 }
 
-func SendToggle(ctx context.Context, noTranscribe bool) (Response, error) {
+func SendToggle(ctx context.Context, noTranscribe bool, forceCleanup bool) (Response, error) {
 	path := "/toggle"
+	params := make([]string, 0, 2)
 	if noTranscribe {
-		path += "?no_transcribe=true"
+		params = append(params, "no_transcribe=true")
+	}
+	if forceCleanup {
+		params = append(params, "cleanup=true")
+	}
+	if len(params) > 0 {
+		path += "?" + strings.Join(params, "&")
 	}
 	return doJSONRequest(ctx, http.MethodPost, path, nil)
 }
@@ -98,7 +105,7 @@ func doJSONRequest(ctx context.Context, method string, path string, body any) (R
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	resp, err := Client().Do(req)
+	resp, err := Client(10 * time.Minute).Do(req)
 	if err != nil {
 		return Response{}, err
 	}
