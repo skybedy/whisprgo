@@ -27,10 +27,11 @@ func Default() Config {
 			Prompt:         "Oprav pouze preklepy, interpunkci a zjevne chyby v diktovanem ceskem textu. Vrat pouze finalni opraveny text. Nevysvetluj, neptej se, nenabizej varianty, nepridavej odrazky ani zadne komentare. Pokud si nejsi jisty, zachovej puvodni formulaci.",
 		},
 		Audio: AudioConfig{
-			InputDevice: "default",
-			SampleRate:  16000,
-			Channels:    1,
-			Format:      "wav",
+			InputDevice:        "default",
+			SampleRate:         16000,
+			Channels:           1,
+			Format:             "wav",
+			MaxDurationSeconds: 900,
 		},
 		Output: OutputConfig{
 			Mode:                "stdout",

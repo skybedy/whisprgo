@@ -48,10 +48,11 @@ type CleanupConfig struct {
 }
 
 type AudioConfig struct {
-	InputDevice string `yaml:"input_device"`
-	SampleRate  int    `yaml:"sample_rate"`
-	Channels    int    `yaml:"channels"`
-	Format      string `yaml:"format"`
+	InputDevice        string `yaml:"input_device"`
+	SampleRate         int    `yaml:"sample_rate"`
+	Channels           int    `yaml:"channels"`
+	Format             string `yaml:"format"`
+	MaxDurationSeconds int    `yaml:"max_duration_seconds"`
 }
 
 type OutputConfig struct {

@@ -80,6 +80,29 @@ func (a *App) performToggleLocal(ctx context.Context, errOut io.Writer, noTransc
 		}
 
 		a.logInfof(errOut, "recording started pid=%d audio=%s", s.PID, s.AudioPath)
+
+		maxDur := time.Duration(a.cfg.Audio.MaxDurationSeconds) * time.Second
+		if maxDur > 0 {
+			go func(pid int, dur time.Duration) {
+				timer := time.NewTimer(dur)
+				defer timer.Stop()
+				select {
+				case <-ctx.Done():
+					return
+				case <-timer.C:
+				}
+				cur, err := state.Load()
+				if err != nil || !cur.Recording || cur.PID != pid {
+					return
+				}
+				a.logInfof(errOut, "recording auto-stopped after max duration=%s pid=%d", dur, pid)
+				a.notify("WhisprGo", "Nahravani automaticky zastaveno (max. delka).", "dialog-information", errOut)
+				if _, err := a.performToggleLocal(ctx, errOut, noTranscribe, forceCleanup); err != nil {
+					a.logErrorf(errOut, "auto-stop toggle failed: %v", err)
+				}
+			}(session.PID, maxDur)
+		}
+
 		return toggleResult{Message: "recording started"}, nil
 	}
 
