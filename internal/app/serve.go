@@ -31,6 +31,10 @@ func (a *App) runServe(parent context.Context, stderr interface{ Write([]byte) (
 	defer stop()
 
 	a.foregroundLogs = true
+	a.foregroundWriter = stderr
+	defer func() {
+		a.foregroundWriter = nil
+	}()
 	a.logInfof(stderr, "whisprgo serve starting")
 	a.logInfof(stderr, "config loaded")
 

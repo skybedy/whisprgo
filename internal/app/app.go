@@ -3,6 +3,8 @@ package app
 import (
 	"fmt"
 	"io"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -21,6 +23,7 @@ type App struct {
 	logger           *logx.Logger
 	verbose          bool
 	foregroundLogs   bool
+	foregroundWriter io.Writer
 	residentParakeet *parakeet.ManagedServer
 }
 
@@ -97,9 +100,7 @@ func (a *App) logInfof(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Info(msg)
 	}
-	if (a.verbose || a.foregroundLogs) && stderr != nil {
-		fmt.Fprintf(stderr, "info: %s\n", msg)
-	}
+	a.writeForeground("INFO", stderr, msg)
 }
 
 func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
@@ -107,9 +108,27 @@ func (a *App) logErrorf(stderr io.Writer, format string, args ...any) {
 	if a.logger != nil {
 		a.logger.Error(msg)
 	}
-	if (a.verbose || a.foregroundLogs) && stderr != nil {
-		fmt.Fprintf(stderr, "error: %s\n", msg)
+	a.writeForeground("ERROR", stderr, msg)
+}
+
+func (a *App) writeForeground(level string, stderr io.Writer, msg string) {
+	if !a.verbose && !a.foregroundLogs {
+		return
 	}
+	if level == "INFO" && strings.HasPrefix(msg, "parakeet ") {
+		return
+	}
+
+	writer := stderr
+	if writer == nil {
+		writer = a.foregroundWriter
+	}
+	if writer == nil {
+		return
+	}
+
+	ts := time.Now().Format(time.RFC3339)
+	fmt.Fprintf(writer, "%s [%s] %s\n", ts, level, msg)
 }
 
 func (a *App) notify(summary string, body string, icon string, stderr io.Writer) {
