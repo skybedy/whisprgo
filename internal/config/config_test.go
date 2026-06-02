@@ -92,3 +92,32 @@ func TestLoadRespectsSectionProviders(t *testing.T) {
 		t.Fatalf("expected cleanup.provider explicit value, got %q", cfg.Cleanup.Provider)
 	}
 }
+
+func TestLoadMergesLegacyAndNestedParakeetConfig(t *testing.T) {
+	xdg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", xdg)
+	cfgPath := filepath.Join(xdg, "whisprgo", "config.yaml")
+	if err := os.MkdirAll(filepath.Dir(cfgPath), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+
+	content := []byte("transcription:\n  provider: parakeet\n  sherpa_ws_url: ws://127.0.0.1:7000\n  parakeet:\n    mode: managed\n    binary: /tmp/sherpa\n    model_dir: /tmp/model\n")
+	if err := os.WriteFile(cfgPath, content, 0o644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() returned error: %v", err)
+	}
+
+	if cfg.Transcription.Parakeet.Mode != "managed" {
+		t.Fatalf("expected parakeet.mode override")
+	}
+	if cfg.Transcription.Parakeet.SherpaWSURL != "ws://127.0.0.1:7000" {
+		t.Fatalf("expected parakeet.sherpa_ws_url merge, got %q", cfg.Transcription.Parakeet.SherpaWSURL)
+	}
+	if cfg.Transcription.Parakeet.Port != 6010 {
+		t.Fatalf("expected default parakeet.port, got %d", cfg.Transcription.Parakeet.Port)
+	}
+}

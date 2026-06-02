@@ -117,6 +117,15 @@ Podporovane config keys pro `config get/set`:
 - `transcription.model`
 - `transcription.language`
 - `transcription.sherpa_ws_url`
+- `transcription.parakeet.mode`
+- `transcription.parakeet.sherpa_ws_url`
+- `transcription.parakeet.binary`
+- `transcription.parakeet.model_dir`
+- `transcription.parakeet.host`
+- `transcription.parakeet.port`
+- `transcription.parakeet.num_threads`
+- `transcription.parakeet.startup_timeout_seconds`
+- `transcription.parakeet.request_timeout_seconds`
 - `cleanup.enabled`
 - `cleanup.provider`
 - `cleanup.model`
@@ -141,10 +150,18 @@ Minimalni priklad:
 ```yaml
 provider: openai
 transcription:
-  provider: openai
-  model: whisper-1
+  provider: parakeet
+  model: parakeet-tdt-0.6b-v3
   language: cs
-  sherpa_ws_url: ws://127.0.0.1:6006
+  parakeet:
+    mode: managed
+    binary: /path/to/sherpa-onnx-ws-linux-x64
+    model_dir: /path/to/parakeet-tdt-0.6b-v3
+    host: 127.0.0.1
+    port: 6010
+    num_threads: 4
+    startup_timeout_seconds: 30
+    request_timeout_seconds: 120
 cleanup:
   enabled: false
   provider: openai
@@ -198,6 +215,35 @@ whisprgo toggle
 whisprgo config set cleanup.enabled true
 whisprgo config set cleanup.model gpt-5-mini
 whisprgo config set cleanup.prompt "Oprav pouze preklepy, interpunkci a zjevne chyby v diktovanem ceskem textu. Vrat pouze finalni opraveny text. Nevysvetluj, neptej se, nenabizej varianty, nepridavej odrazky ani zadne komentare. Pokud si nejsi jisty, zachovej puvodni formulaci."
+```
+
+## Parakeet modes
+
+Managed one-shot:
+
+```bash
+whisprgo config set transcription.provider parakeet
+whisprgo config set transcription.model parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.mode managed
+whisprgo config set transcription.parakeet.binary /path/to/sherpa-onnx-ws-linux-x64
+whisprgo config set transcription.parakeet.model_dir /path/to/parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.host 127.0.0.1
+whisprgo config set transcription.parakeet.port 6010
+whisprgo config set transcription.parakeet.num_threads 4
+whisprgo config set transcription.parakeet.startup_timeout_seconds 30
+whisprgo config set cleanup.enabled false
+whisprgo doctor
+```
+
+External fallback:
+
+```bash
+whisprgo config set transcription.provider parakeet
+whisprgo config set transcription.model parakeet-tdt-0.6b-v3
+whisprgo config set transcription.parakeet.mode external
+whisprgo config set transcription.parakeet.sherpa_ws_url ws://127.0.0.1:6010
+whisprgo config set cleanup.enabled false
+whisprgo doctor
 ```
 
 ## Development checks

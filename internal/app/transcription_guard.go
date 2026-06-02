@@ -56,7 +56,7 @@ func likelyEnglish(words []string) bool {
 		"a": {}, "an": {}, "and": {}, "are": {}, "be": {}, "can": {}, "do": {}, "for": {}, "hello": {},
 		"how": {}, "i": {}, "is": {}, "it": {}, "my": {}, "not": {}, "of": {}, "please": {}, "test": {},
 		"don't": {},
-		"that": {}, "the": {}, "this": {}, "to": {}, "what": {}, "you": {}, "your": {},
+		"that":  {}, "the": {}, "this": {}, "to": {}, "what": {}, "you": {}, "your": {},
 	}
 	hits := 0
 	for _, w := range words {

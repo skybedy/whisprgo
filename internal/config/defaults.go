@@ -4,10 +4,19 @@ func Default() Config {
 	return Config{
 		Provider: "openai",
 		Transcription: TranscriptionConfig{
-			Provider:       "openai",
-			Model:          "whisper-1",
-			Language:       "cs",
-			SherpaWSURL:    "ws://127.0.0.1:6006",
+			Provider:    "openai",
+			Model:       "whisper-1",
+			Language:    "cs",
+			SherpaWSURL: "ws://127.0.0.1:6006",
+			Parakeet: ParakeetConfig{
+				Mode:                  "external",
+				SherpaWSURL:           "ws://127.0.0.1:6006",
+				Host:                  "127.0.0.1",
+				Port:                  6010,
+				NumThreads:            4,
+				StartupTimeoutSeconds: 30,
+				RequestTimeoutSeconds: 120,
+			},
 			TimeoutSeconds: 120,
 		},
 		Cleanup: CleanupConfig{

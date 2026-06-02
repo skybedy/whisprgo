@@ -19,11 +19,24 @@ type Config struct {
 }
 
 type TranscriptionConfig struct {
-	Provider       string `yaml:"provider"`
-	Model          string `yaml:"model"`
-	Language       string `yaml:"language"`
-	SherpaWSURL    string `yaml:"sherpa_ws_url"`
-	TimeoutSeconds int    `yaml:"timeout_seconds"`
+	Provider       string         `yaml:"provider"`
+	Model          string         `yaml:"model"`
+	Language       string         `yaml:"language"`
+	SherpaWSURL    string         `yaml:"sherpa_ws_url"`
+	Parakeet       ParakeetConfig `yaml:"parakeet"`
+	TimeoutSeconds int            `yaml:"timeout_seconds"`
+}
+
+type ParakeetConfig struct {
+	Mode                  string `yaml:"mode"`
+	SherpaWSURL           string `yaml:"sherpa_ws_url"`
+	Binary                string `yaml:"binary"`
+	ModelDir              string `yaml:"model_dir"`
+	Host                  string `yaml:"host"`
+	Port                  int    `yaml:"port"`
+	NumThreads            int    `yaml:"num_threads"`
+	StartupTimeoutSeconds int    `yaml:"startup_timeout_seconds"`
+	RequestTimeoutSeconds int    `yaml:"request_timeout_seconds"`
 }
 
 type CleanupConfig struct {
@@ -54,7 +67,7 @@ type SecurityConfig struct {
 }
 
 type LoggingConfig struct {
-	IncludeText bool `yaml:"include_text"`
+	IncludeText bool   `yaml:"include_text"`
 	FilePath    string `yaml:"file_path"`
 }
 
@@ -103,6 +116,30 @@ func normalizeProviders(cfg *Config) {
 	}
 	if cfg.Cleanup.Provider == "" {
 		cfg.Cleanup.Provider = global
+	}
+	if cfg.Transcription.Parakeet.Mode == "" {
+		cfg.Transcription.Parakeet.Mode = "external"
+	}
+	if cfg.Transcription.SherpaWSURL != "" && (cfg.Transcription.Parakeet.SherpaWSURL == "" || cfg.Transcription.Parakeet.SherpaWSURL == Default().Transcription.Parakeet.SherpaWSURL) {
+		cfg.Transcription.Parakeet.SherpaWSURL = cfg.Transcription.SherpaWSURL
+	}
+	if cfg.Transcription.SherpaWSURL == "" && cfg.Transcription.Parakeet.SherpaWSURL != "" {
+		cfg.Transcription.SherpaWSURL = cfg.Transcription.Parakeet.SherpaWSURL
+	}
+	if cfg.Transcription.Parakeet.Host == "" {
+		cfg.Transcription.Parakeet.Host = "127.0.0.1"
+	}
+	if cfg.Transcription.Parakeet.Port <= 0 {
+		cfg.Transcription.Parakeet.Port = 6010
+	}
+	if cfg.Transcription.Parakeet.NumThreads <= 0 {
+		cfg.Transcription.Parakeet.NumThreads = 4
+	}
+	if cfg.Transcription.Parakeet.StartupTimeoutSeconds <= 0 {
+		cfg.Transcription.Parakeet.StartupTimeoutSeconds = 30
+	}
+	if cfg.Transcription.Parakeet.RequestTimeoutSeconds <= 0 {
+		cfg.Transcription.Parakeet.RequestTimeoutSeconds = 120
 	}
 }
 

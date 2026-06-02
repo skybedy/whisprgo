@@ -73,5 +73,6 @@
 
 - [x] add local Parakeet transcription provider (no API key path)
 - [x] reuse OpenWhispr-compatible `sherpa-onnx` websocket backend from Go
-- [ ] add doctor checks for local Parakeet binary/model files
+- [x] add doctor checks for local Parakeet binary/model files
+- [x] add managed one-shot Parakeet server mode
 - [ ] keep cleanup optional; preserve fast raw-transcript path

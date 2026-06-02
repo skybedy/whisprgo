@@ -17,6 +17,7 @@ type configValueType string
 const (
 	configTypeString configValueType = "string"
 	configTypeBool   configValueType = "bool"
+	configTypeInt    configValueType = "int"
 )
 
 type configKeySpec struct {
@@ -33,6 +34,60 @@ func allowedConfigKeys() map[string]configKeySpec {
 		"transcription.language": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Language }, set: func(c *config.Config, v string) error { c.Transcription.Language = v; return nil }},
 		"transcription.sherpa_ws_url": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.SherpaWSURL }, set: func(c *config.Config, v string) error {
 			c.Transcription.SherpaWSURL = v
+			c.Transcription.Parakeet.SherpaWSURL = v
+			return nil
+		}},
+		"transcription.parakeet.mode": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Parakeet.Mode }, set: func(c *config.Config, v string) error {
+			c.Transcription.Parakeet.Mode = v
+			return nil
+		}},
+		"transcription.parakeet.sherpa_ws_url": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Parakeet.SherpaWSURL }, set: func(c *config.Config, v string) error {
+			c.Transcription.Parakeet.SherpaWSURL = v
+			c.Transcription.SherpaWSURL = v
+			return nil
+		}},
+		"transcription.parakeet.binary": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Parakeet.Binary }, set: func(c *config.Config, v string) error {
+			c.Transcription.Parakeet.Binary = v
+			return nil
+		}},
+		"transcription.parakeet.model_dir": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Parakeet.ModelDir }, set: func(c *config.Config, v string) error {
+			c.Transcription.Parakeet.ModelDir = v
+			return nil
+		}},
+		"transcription.parakeet.host": {valueType: configTypeString, get: func(c config.Config) string { return c.Transcription.Parakeet.Host }, set: func(c *config.Config, v string) error {
+			c.Transcription.Parakeet.Host = v
+			return nil
+		}},
+		"transcription.parakeet.port": {valueType: configTypeInt, get: func(c config.Config) string { return strconv.Itoa(c.Transcription.Parakeet.Port) }, set: func(c *config.Config, v string) error {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return fmt.Errorf("transcription.parakeet.port expects integer")
+			}
+			c.Transcription.Parakeet.Port = n
+			return nil
+		}},
+		"transcription.parakeet.num_threads": {valueType: configTypeInt, get: func(c config.Config) string { return strconv.Itoa(c.Transcription.Parakeet.NumThreads) }, set: func(c *config.Config, v string) error {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return fmt.Errorf("transcription.parakeet.num_threads expects integer")
+			}
+			c.Transcription.Parakeet.NumThreads = n
+			return nil
+		}},
+		"transcription.parakeet.startup_timeout_seconds": {valueType: configTypeInt, get: func(c config.Config) string { return strconv.Itoa(c.Transcription.Parakeet.StartupTimeoutSeconds) }, set: func(c *config.Config, v string) error {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return fmt.Errorf("transcription.parakeet.startup_timeout_seconds expects integer")
+			}
+			c.Transcription.Parakeet.StartupTimeoutSeconds = n
+			return nil
+		}},
+		"transcription.parakeet.request_timeout_seconds": {valueType: configTypeInt, get: func(c config.Config) string { return strconv.Itoa(c.Transcription.Parakeet.RequestTimeoutSeconds) }, set: func(c *config.Config, v string) error {
+			n, err := strconv.Atoi(v)
+			if err != nil {
+				return fmt.Errorf("transcription.parakeet.request_timeout_seconds expects integer")
+			}
+			c.Transcription.Parakeet.RequestTimeoutSeconds = n
 			return nil
 		}},
 		"cleanup.enabled": {valueType: configTypeBool, get: func(c config.Config) string { return strconv.FormatBool(c.Cleanup.Enabled) }, set: func(c *config.Config, v string) error {

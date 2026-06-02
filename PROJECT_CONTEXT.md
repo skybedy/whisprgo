@@ -21,3 +21,5 @@
 - Pro dalsi fazi je cil pridat lokalni transkripci pres Parakeet (OpenWhispr styl: `sherpa-onnx` websocket sidecar + ONNX modely), bez velkeho refaktoru.
 - Cleanup je defaultne vypnuty (`cleanup.enabled=false`), zustava ale volitelny.
 - Lokalni transkripce `parakeet` je navazana na konfigurovatelny `transcription.sherpa_ws_url` bez hardcoded OpenWhispr cest.
+- `parakeet` nově umi i managed one-shot rezim: `whisprgo` spusti `sherpa-onnx` WS server pro jednu transkripci, pocka na readiness, pouzije ho a zase ho ukonci.
+- External `sherpa_ws_url` rezim zustava zachovany jako fallback/dev varianta.

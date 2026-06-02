@@ -9,6 +9,7 @@ import (
 
 	"whisprgo/internal/cleanup"
 	"whisprgo/internal/output"
+	"whisprgo/internal/parakeet"
 	"whisprgo/internal/secrets"
 	"whisprgo/internal/transcription"
 )
@@ -24,19 +25,21 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 	if model == "" {
 		return "", fmt.Errorf("transcription.model is empty")
 	}
+	if transcriptionProvider == "parakeet" {
+		return a.transcribeWithParakeet(ctx, audioPath, model)
+	}
+
 	a.logInfof(nil, "transcribe: provider=%s model=%s", transcriptionProvider, model)
 	var (
 		transcriptionAPIKey string
 		err                 error
 	)
-	if transcriptionProvider != "parakeet" {
-		var src secrets.Source
-		transcriptionAPIKey, src, err = secrets.GetForRole("transcription", transcriptionProvider)
-		if err == nil {
-			a.logInfof(nil, "transcribe: secret_source=%s", src)
-		} else {
-			a.logErrorf(nil, "transcribe: secret_source_unavailable reason=%v", err)
-		}
+	var src secrets.Source
+	transcriptionAPIKey, src, err = secrets.GetForRole("transcription", transcriptionProvider)
+	if err == nil {
+		a.logInfof(nil, "transcribe: secret_source=%s", src)
+	} else {
+		a.logErrorf(nil, "transcribe: secret_source_unavailable reason=%v", err)
 	}
 
 	var provider transcription.Provider
@@ -45,8 +48,6 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		provider, err = transcription.NewOpenAIProvider(transcriptionAPIKey, nil)
 	case "mistral":
 		provider, err = transcription.NewMistralProvider(transcriptionAPIKey, nil)
-	case "parakeet":
-		provider, err = transcription.NewParakeetWSProvider(a.cfg.Transcription.SherpaWSURL, a.cfg.Transcription.Language)
 	default:
 		return "", fmt.Errorf("unsupported transcription provider: %s", transcriptionProvider)
 	}
@@ -66,9 +67,104 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 		a.logErrorf(nil, "transcribe: failed err=%v", err)
 		return "", err
 	}
-	if transcriptionProvider == "parakeet" && shouldRetryParakeetForCzech(a.cfg.Transcription.Language, text) {
+	a.logInfof(nil, "transcribe: done chars=%d", len(text))
+	if a.cfg.Logging.IncludeText {
+		a.logInfof(nil, "transcribe: text=%q", text)
+	}
+	return text, nil
+}
+
+func (a *App) transcribeWithParakeet(ctx context.Context, audioPath string, model string) (string, error) {
+	mode := strings.ToLower(strings.TrimSpace(a.cfg.Transcription.Parakeet.Mode))
+	if mode == "" {
+		mode = "external"
+	}
+	a.logInfof(nil, "transcription provider=parakeet mode=%s model=%s", mode, model)
+
+	switch mode {
+	case "external":
+		wsURL := strings.TrimSpace(a.cfg.Transcription.Parakeet.SherpaWSURL)
+		if wsURL == "" {
+			wsURL = strings.TrimSpace(a.cfg.Transcription.SherpaWSURL)
+		}
+		a.logInfof(nil, "transcription provider=parakeet mode=external sherpa_ws_url=%s", wsURL)
+		provider, err := transcription.NewParakeetWSProvider(wsURL, a.cfg.Transcription.Language)
+		if err != nil {
+			return "", err
+		}
+
+		timeout := time.Duration(a.cfg.Transcription.TimeoutSeconds) * time.Second
+		if timeout <= 0 {
+			timeout = 120 * time.Second
+		}
+		reqCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		startedAt := time.Now()
+		text, err := provider.Transcribe(reqCtx, audioPath, model)
+		if err != nil {
+			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			return "", err
+		}
+		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
+		a.logInfof(nil, "parakeet transcription completed duration=%s text_chars=%d", time.Since(startedAt), len(text))
+		if a.cfg.Logging.IncludeText {
+			a.logInfof(nil, "transcribe: text=%q", text)
+		}
+		return text, nil
+	case "managed":
+		cfg := a.cfg.Transcription.Parakeet
+		a.logInfof(nil, "transcription provider=parakeet mode=managed")
+		a.logInfof(nil, "parakeet binary=%s", cfg.Binary)
+		a.logInfof(nil, "parakeet model_dir=%s", cfg.ModelDir)
+		a.logInfof(nil, "parakeet port=%d", cfg.Port)
+		a.logInfof(nil, "parakeet num_threads=%d", cfg.NumThreads)
+		a.logInfof(nil, "parakeet starting server")
+		server, startupDuration, err := parakeet.StartManagedServer(ctx, cfg, parakeetAppLogger{app: a})
+		if err != nil {
+			a.logErrorf(nil, "parakeet start failed err=%v", err)
+			return "", err
+		}
+		a.logInfof(nil, "parakeet server ready duration=%s", startupDuration)
+		defer func() {
+			a.logInfof(nil, "parakeet stopping server")
+			if stopErr := server.Stop(); stopErr != nil {
+				a.logErrorf(nil, "parakeet stop failed err=%v", stopErr)
+			}
+		}()
+
+		provider, err := transcription.NewParakeetWSProvider(server.URL(), a.cfg.Transcription.Language)
+		if err != nil {
+			return "", err
+		}
+		timeout := time.Duration(cfg.RequestTimeoutSeconds) * time.Second
+		if timeout <= 0 {
+			timeout = 120 * time.Second
+		}
+		reqCtx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		startedAt := time.Now()
+		text, err := provider.Transcribe(reqCtx, audioPath, model)
+		if err != nil {
+			a.logErrorf(nil, "transcribe: failed err=%v", err)
+			return "", err
+		}
+		text = a.retryParakeetIfNeeded(reqCtx, provider, audioPath, model, text)
+		a.logInfof(nil, "parakeet transcription completed duration=%s text_chars=%d", time.Since(startedAt), len(text))
+		if a.cfg.Logging.IncludeText {
+			a.logInfof(nil, "transcribe: text=%q", text)
+		}
+		return text, nil
+	default:
+		return "", fmt.Errorf("unsupported parakeet mode: %s", mode)
+	}
+}
+
+func (a *App) retryParakeetIfNeeded(ctx context.Context, provider transcription.Provider, audioPath string, model string, text string) string {
+	if shouldRetryParakeetForCzech(a.cfg.Transcription.Language, text) {
 		a.logInfof(nil, "transcribe: parakeet retry triggered for language=%s", a.cfg.Transcription.Language)
-		retryText, retryErr := provider.Transcribe(reqCtx, audioPath, model)
+		retryText, retryErr := provider.Transcribe(ctx, audioPath, model)
 		if retryErr != nil {
 			a.logErrorf(nil, "transcribe: parakeet retry failed err=%v", retryErr)
 		} else {
@@ -76,11 +172,23 @@ func (a *App) transcribeAudio(ctx context.Context, audioPath string) (string, er
 			a.logInfof(nil, "transcribe: parakeet retry completed chars=%d", len(text))
 		}
 	}
-	a.logInfof(nil, "transcribe: done chars=%d", len(text))
-	if a.cfg.Logging.IncludeText {
-		a.logInfof(nil, "transcribe: text=%q", text)
+	return text
+}
+
+type parakeetAppLogger struct {
+	app *App
+}
+
+func (l parakeetAppLogger) Infof(format string, args ...any) {
+	if l.app != nil {
+		l.app.logInfof(nil, format, args...)
 	}
-	return text, nil
+}
+
+func (l parakeetAppLogger) Errorf(format string, args ...any) {
+	if l.app != nil {
+		l.app.logErrorf(nil, format, args...)
+	}
 }
 
 func (a *App) maybeCleanupText(ctx context.Context, input string) (string, error) {

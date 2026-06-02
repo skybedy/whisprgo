@@ -22,3 +22,5 @@
 - Cleanup provider supports `openai`, `gemini`, and `deepseek`; transcription provider currently supports `openai`, `mistral`, and local `parakeet` via configurable `sherpa-onnx` websocket URL.
 - Current default operating mode for daily dictation is raw transcript (cleanup optional / non-primary).
 - Local NVIDIA/Parakeet direction will follow OpenWhispr architecture: local `sherpa-onnx` websocket backend with ONNX Parakeet models.
+- `parakeet` supports two modes: `external` (connect to existing websocket server) and `managed` (start one-shot websocket server for the current transcription and stop it afterward).
+- Runtime code must not hardcode OpenWhispr install/cache paths; binary and model_dir are config-driven.

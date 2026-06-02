@@ -25,6 +25,42 @@ func ApplyEnvOverrides(cfg *Config) {
 	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_SHERPA_WS_URL")); v != "" {
 		cfg.Transcription.SherpaWSURL = v
+		cfg.Transcription.Parakeet.SherpaWSURL = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_MODE")); v != "" {
+		cfg.Transcription.Parakeet.Mode = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_SHERPA_WS_URL")); v != "" {
+		cfg.Transcription.Parakeet.SherpaWSURL = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_BINARY")); v != "" {
+		cfg.Transcription.Parakeet.Binary = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_MODEL_DIR")); v != "" {
+		cfg.Transcription.Parakeet.ModelDir = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_HOST")); v != "" {
+		cfg.Transcription.Parakeet.Host = v
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_PORT")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cfg.Transcription.Parakeet.Port = n
+		}
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_NUM_THREADS")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cfg.Transcription.Parakeet.NumThreads = n
+		}
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_STARTUP_TIMEOUT_SECONDS")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cfg.Transcription.Parakeet.StartupTimeoutSeconds = n
+		}
+	}
+	if v := strings.TrimSpace(os.Getenv("WHISPRGO_TRANSCRIPTION_PARAKEET_REQUEST_TIMEOUT_SECONDS")); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cfg.Transcription.Parakeet.RequestTimeoutSeconds = n
+		}
 	}
 	if v := strings.TrimSpace(os.Getenv("WHISPRGO_CLEANUP_MODEL")); v != "" {
 		cfg.Cleanup.Model = v
